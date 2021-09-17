@@ -26,6 +26,11 @@ def generate_launch_description():
             'mir_hostname',
             default_value='192.168.12.20',
             description=''),
+        
+        DeclareLaunchArgument(
+            'mir_api_auth',
+            default_value='',
+            description='Authentification token to log into Mir REST API'),
 
         DeclareLaunchArgument(
             'disable_map',
@@ -69,7 +74,10 @@ def generate_launch_description():
         Node(
             package='mir_driver',
             executable='mir_bridge',
-            parameters=[{'use_sim_time': LaunchConfiguration('use_sim_time')}],
+            parameters=[
+                {'use_sim_time': LaunchConfiguration('use_sim_time')},
+                {'mir_api_auth' : LaunchConfiguration('mir_api_auth')},
+            ],
             output='screen'),
 
         Node(
