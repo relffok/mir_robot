@@ -11,6 +11,7 @@ import sys
 from collections.abc import Iterable
 
 import mir_driver.rosbridge
+import mir_driver.mir_restapi
 from rclpy_message_converter import message_converter
 from geometry_msgs.msg import TwistStamped
 from nav_msgs.msg import Odometry
@@ -375,7 +376,37 @@ class MiR100BridgeNode(Node):
         global tf_prefix
         tf_prefix = self.declare_parameter('~tf_prefix', '').value.strip('/')
 
-        self.get_logger().info('Trying to connect to %s:%i...' % (hostname, port))
+
+        # Connect to Mir REST API: set date time
+        try:
+            auth = self.declare_parameter('mir-auth', '').value
+        except KeyError:
+            self.get_logger().fatal('Parameter "mir-auth" is not set!')
+            sys.exit(-1)
+        mirRESTclient = mir_driver.mir_restapi.MirRestAPI(self.get_logger(), hostname, auth)
+        self.get_logger().info('REST API: Waiting for connection')
+        i = 1
+        while not mirRESTclient.isConnected():
+            if not rclpy.ok():
+                sys.exit(0)
+            if i > 5:
+                self.get_logger().error('REST API: Could not connect, giving up')
+                break            
+            i += 1
+            time.sleep(1)
+        if mirRESTclient.isConnected(printSuccess=False):
+            response = mirRESTclient.setDateTime() # produces an unavoidable connection timeout
+            self.get_logger().info(response)
+            self.get_logger().info("REST API: Setting time Mir triggers emergency stop, please unlock.")
+            self.get_logger().info('REST API: Waiting to close connection: 10s')
+            time.sleep(5) # this is needed, so that the connection timeout can be ignored
+            self.get_logger().info('REST API: Waiting to close connection: 5s')
+            time.sleep(5)
+            mirRESTclient.close()
+
+
+        # Connect to ROSbridge
+        self.get_logger().info('Trying to connect to ROSbridge at %s:%i...' % (hostname, port))
         self.robot = mir_driver.rosbridge.RosbridgeSetup(hostname, port)
 
         i = 1
