@@ -379,9 +379,9 @@ class MiR100BridgeNode(Node):
 
         # Connect to Mir REST API: set date time
         try:
-            auth = self.declare_parameter('mir-auth', '').value
+            auth = self.declare_parameter('mir_api_auth', '').value
         except KeyError:
-            self.get_logger().fatal('Parameter "mir-auth" is not set!')
+            self.get_logger().fatal('Parameter "mir_api_auth" is not set!')
             sys.exit(-1)
         mirRESTclient = mir_driver.mir_restapi.MirRestAPI(self.get_logger(), hostname, auth)
         self.get_logger().info('REST API: Waiting for connection')
