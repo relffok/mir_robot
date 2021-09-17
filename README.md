@@ -65,6 +65,10 @@ instructions. -->
 
 ### Preliminaries
 
+Install the python package dependencies, that cannot be resolved by rosdep
+
+    pip install pytz
+
 If you haven't already [installed ROS2](https://docs.ros.org/en/foxy/Installation/Ubuntu-Install-Debians.html) on your PC, you need to add the ROS2 apt
 repository. This step is necessary for either binary or source install.
 
