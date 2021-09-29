@@ -92,7 +92,7 @@ def generate_launch_description():
         DeclareLaunchArgument(
             'default_bt_xml_filename',
             default_value=os.path.join(
-                mir_nav_dir, 'behavior_trees', 'navigate_w_replanning_and_recovery.xml'),
+                mir_nav_dir, 'behavior_trees', 'navigate_to_pose_w_replanning_and_recovery.xml'),
             description='Full path to the behavior tree xml file to use'),
 
         DeclareLaunchArgument(
