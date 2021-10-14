@@ -16,6 +16,7 @@ from geometry_msgs.msg import TwistStamped
 from nav_msgs.msg import Odometry
 from sensor_msgs.msg import LaserScan
 from tf2_msgs.msg import TFMessage
+from std_msgs.msg import Bool
 
 tf_prefix = ''
 
@@ -372,6 +373,13 @@ class MiR100BridgeNode(Node):
         port = self.declare_parameter('port', 9090).value
         assert isinstance(port, int), 'port parameter must be an integer'
 
+        # publisher that signifies that mir_bridge is ready
+        # default to False
+        pub_mir_ready = self.create_publisher(Bool, "mir_bridge_ready", 10)
+        msg_mir_ready = Bool()
+        msg_mir_ready.data = False
+        pub_mir_ready.publish(msg_mir_ready)
+
         global tf_prefix
         tf_prefix = self.declare_parameter('~tf_prefix', '').value.strip('/')
 
@@ -409,6 +417,10 @@ class MiR100BridgeNode(Node):
             if ('/' + sub_topic.topic) not in subscribed_topics:
                 self.get_logger().warn(
                     "Topic '%s' is not yet subscribed to by the MiR!" % sub_topic.topic)
+        
+        # signal to button that mir_bridge is ready
+        msg_mir_ready.data = True
+        pub_mir_ready.publish(msg_mir_ready)
 
     def get_topics(self):
         srv_response = self.robot.callService('/rosapi/topics', msg={})
