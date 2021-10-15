@@ -17,6 +17,7 @@ from nav_msgs.msg import Odometry
 from sensor_msgs.msg import LaserScan
 from tf2_msgs.msg import TFMessage
 from std_msgs.msg import Bool
+from rclpy.qos import qos_profile_services_default
 
 tf_prefix = ''
 
@@ -375,7 +376,7 @@ class MiR100BridgeNode(Node):
 
         # publisher that signifies that mir_bridge is ready
         # default to False
-        pub_mir_ready = self.create_publisher(Bool, "mir_bridge_ready", 10)
+        pub_mir_ready = self.create_publisher(Bool, "mir_bridge_ready", qos_profile_services_default)
         msg_mir_ready = Bool()
         msg_mir_ready.data = False
         pub_mir_ready.publish(msg_mir_ready)
