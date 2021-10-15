@@ -376,10 +376,10 @@ class MiR100BridgeNode(Node):
 
         # publisher that signifies that mir_bridge is ready
         # default to False
-        pub_mir_ready = self.create_publisher(Bool, "mir_bridge_ready", qos_profile_services_default)
+        self.pub_mir_ready = self.create_publisher(Bool, "mir_bridge_ready", qos_profile_services_default)
         msg_mir_ready = Bool()
         msg_mir_ready.data = False
-        pub_mir_ready.publish(msg_mir_ready)
+        self.pub_mir_ready.publish(msg_mir_ready)
 
         global tf_prefix
         tf_prefix = self.declare_parameter('~tf_prefix', '').value.strip('/')
@@ -421,7 +421,7 @@ class MiR100BridgeNode(Node):
         
         # signal to button that mir_bridge is ready
         msg_mir_ready.data = True
-        pub_mir_ready.publish(msg_mir_ready)
+        self.pub_mir_ready.publish(msg_mir_ready)
 
     def get_topics(self):
         srv_response = self.robot.callService('/rosapi/topics', msg={})
