@@ -366,6 +366,15 @@ class SubscriberWrapper(object):
 class MiR100BridgeNode(Node):
     def __init__(self):
         super().__init__('mir_bridge')
+        
+        # publisher that signifies that mir_bridge is ready
+        self.pub_mir_ready = self.create_publisher(Bool, "mir_bridge_ready", qos_profile_services_default)
+        self.mir_bridge_ready = False
+        self.publish_mir_ready_state(self.mir_bridge_ready)
+        # listener that answers to polling of mir_bridge readiness
+        self.sub_mir_ready_poll = self.create_subscription(Bool, "mir_bridge_ready_poll", 
+                                self.mir_bridge_ready_poll_callback, qos_profile_services_default)
+        
         try:
             hostname = self.declare_parameter('hostname', '192.168.12.20').value
         except KeyError:
@@ -373,13 +382,6 @@ class MiR100BridgeNode(Node):
             sys.exit(-1)
         port = self.declare_parameter('port', 9090).value
         assert isinstance(port, int), 'port parameter must be an integer'
-
-        # publisher that signifies that mir_bridge is ready
-        # default to False
-        self.pub_mir_ready = self.create_publisher(Bool, "mir_bridge_ready", qos_profile_services_default)
-        msg_mir_ready = Bool()
-        msg_mir_ready.data = False
-        self.pub_mir_ready.publish(msg_mir_ready)
 
         global tf_prefix
         tf_prefix = self.declare_parameter('~tf_prefix', '').value.strip('/')
@@ -420,8 +422,7 @@ class MiR100BridgeNode(Node):
                     "Topic '%s' is not yet subscribed to by the MiR!" % sub_topic.topic)
         
         # signal to button that mir_bridge is ready
-        msg_mir_ready.data = True
-        self.pub_mir_ready.publish(msg_mir_ready)
+        self.publish_mir_ready_state(True)
 
     def get_topics(self):
         srv_response = self.robot.callService('/rosapi/topics', msg={})
@@ -451,6 +452,15 @@ class MiR100BridgeNode(Node):
                 print((' * %s [%s]' % (topic_name, topic_type)))
 
         return topics
+    
+    def mir_bridge_ready_poll_callback(self, msg):
+        self.publish_mir_ready_state(self.mir_bridge_ready)
+
+    def publish_mir_ready_state(self, state):
+        self.mir_bridge_ready = state
+        msg_mir_ready = Bool()
+        msg_mir_ready.data = self.mir_bridge_ready
+        self.pub_mir_ready.publish(msg_mir_ready)
 
 
 def main(args=None):
@@ -462,9 +472,7 @@ def main(args=None):
         node.get_logger().fatal(str(e))
     finally:
         # send not ready signal on crash/shutdown
-        msg_mir_ready = Bool()
-        msg_mir_ready.data = False
-        node.pub_mir_ready.publish(msg_mir_ready)
+        node.publish_mir_ready_state(False)
         rclpy.shutdown()
 
 
