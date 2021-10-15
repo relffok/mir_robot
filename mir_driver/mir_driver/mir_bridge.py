@@ -456,8 +456,17 @@ class MiR100BridgeNode(Node):
 def main(args=None):
     rclpy.init(args=args)
     node = MiR100BridgeNode()
-    rclpy.spin(node)
-    rclpy.shutdown()
+    try:
+        rclpy.spin(node)
+    except Exception as e:
+        node.get_logger().fatal(str(e))
+    finally:
+        # send not ready signal on crash/shutdown
+        msg_mir_ready = Bool()
+        msg_mir_ready.data = False
+        node.pub_mir_ready.publish(msg_mir_ready)
+        rclpy.shutdown()
+
 
 
 if __name__ == '__main__':
