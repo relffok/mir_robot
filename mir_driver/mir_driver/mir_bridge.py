@@ -368,12 +368,19 @@ class MiR100BridgeNode(Node):
         super().__init__('mir_bridge')
         
         # publisher that signifies that mir_bridge is ready
-        self.pub_mir_ready = self.create_publisher(Bool, "mir_bridge_ready", qos_profile_services_default)
-        self.mir_bridge_ready = False
-        self.publish_mir_ready_state(self.mir_bridge_ready)
+        self.pub_mir_ready = self.create_publisher(
+            Bool, 
+            "mir_bridge_ready", 
+            qos_profile_services_default)
+        # mir_bridge_ready state variable
+        self.mir_bridge_ready = None
+        self.publish_mir_ready_state(False)
         # listener that answers to polling of mir_bridge readiness
-        self.sub_mir_ready_poll = self.create_subscription(Bool, "mir_bridge_ready_poll", 
-                                self.mir_bridge_ready_poll_callback, qos_profile_services_default)
+        self.sub_mir_ready_poll = self.create_subscription(
+            Bool, 
+            "mir_bridge_ready_poll", 
+            self.mir_bridge_ready_poll_callback, 
+            qos_profile_services_default)
         
         try:
             hostname = self.declare_parameter('hostname', '192.168.12.20').value
@@ -466,14 +473,8 @@ class MiR100BridgeNode(Node):
 def main(args=None):
     rclpy.init(args=args)
     node = MiR100BridgeNode()
-    try:
-        rclpy.spin(node)
-    except Exception as e:
-        node.get_logger().fatal(str(e))
-    finally:
-        # send not ready signal on crash/shutdown
-        node.publish_mir_ready_state(False)
-        rclpy.shutdown()
+    rclpy.spin(node)
+    rclpy.shutdown()
 
 
 
