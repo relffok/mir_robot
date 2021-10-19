@@ -367,10 +367,7 @@ class MiR100BridgeNode(Node):
         super().__init__('mir_bridge')
         
         self.mir_bridge_ready = False #state
-        self.srv_mir_ready = self.create_service(
-            Trigger, 
-            'mir_bridge_ready', 
-            self.mir_bridge_ready_poll_callback)
+        self.srv_mir_ready = self.create_service(Trigger, 'mir_bridge_ready', self.mir_bridge_ready_poll_callback)
         
         try:
             hostname = self.declare_parameter('hostname', '192.168.12.20').value
@@ -450,7 +447,7 @@ class MiR100BridgeNode(Node):
 
         return topics
     
-    def mir_bridge_ready_poll_callback(self, response):
+    def mir_bridge_ready_poll_callback(self, request, response):
         self.get_logger().info('Checked for readiness')
         response.success = self.mir_bridge_ready
         response.message = ""
