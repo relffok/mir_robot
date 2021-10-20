@@ -449,8 +449,8 @@ class MiR100BridgeNode(Node):
     
     def mir_bridge_ready_poll_callback(self, request, response):
         self.get_logger().info('Checked for readiness')
-        response.success = self.mir_bridge_ready
-        response.message = ""
+        response.success = True
+        response.message = str(self.mir_bridge_ready)
         return response
 
 
