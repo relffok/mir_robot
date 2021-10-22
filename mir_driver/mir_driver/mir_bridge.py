@@ -16,8 +16,7 @@ from geometry_msgs.msg import TwistStamped
 from nav_msgs.msg import Odometry
 from sensor_msgs.msg import LaserScan
 from tf2_msgs.msg import TFMessage
-from std_msgs.msg import Bool
-from rclpy.qos import qos_profile_services_default
+from usb_pushbutton_interfaces.srv import CheckReady
 
 tf_prefix = ''
 
@@ -367,20 +366,8 @@ class MiR100BridgeNode(Node):
     def __init__(self):
         super().__init__('mir_bridge')
         
-        # publisher that signifies that mir_bridge is ready
-        self.pub_mir_ready = self.create_publisher(
-            Bool, 
-            "mir_bridge_ready", 
-            qos_profile_services_default)
-        # mir_bridge_ready state variable
-        self.mir_bridge_ready = None
-        self.publish_mir_ready_state(False)
-        # listener that answers to polling of mir_bridge readiness
-        self.sub_mir_ready_poll = self.create_subscription(
-            Bool, 
-            "mir_bridge_ready_poll", 
-            self.mir_bridge_ready_poll_callback, 
-            qos_profile_services_default)
+        self.mir_bridge_ready = False #state
+        self.srv_mir_ready = self.create_service(CheckReady,'mir_bridge_ready',self.mir_bridge_ready_poll_callback)
         
         try:
             hostname = self.declare_parameter('hostname', '192.168.12.20').value
@@ -428,8 +415,8 @@ class MiR100BridgeNode(Node):
                 self.get_logger().warn(
                     "Topic '%s' is not yet subscribed to by the MiR!" % sub_topic.topic)
         
-        # signal to button that mir_bridge is ready
-        self.publish_mir_ready_state(True)
+        self.mir_bridge_ready = True
+        
 
     def get_topics(self):
         srv_response = self.robot.callService('/rosapi/topics', msg={})
@@ -460,14 +447,12 @@ class MiR100BridgeNode(Node):
 
         return topics
     
-    def mir_bridge_ready_poll_callback(self, msg):
-        self.publish_mir_ready_state(self.mir_bridge_ready)
+    def mir_bridge_ready_poll_callback(self, request, response):
+        self.get_logger().info("Called for mir_bridge_ready")
+        response.success = True
+        response.ready = self.mir_bridge_ready
+        return response
 
-    def publish_mir_ready_state(self, state):
-        self.mir_bridge_ready = state
-        msg_mir_ready = Bool()
-        msg_mir_ready.data = self.mir_bridge_ready
-        self.pub_mir_ready.publish(msg_mir_ready)
 
 
 def main(args=None):
