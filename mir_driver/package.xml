@@ -27,7 +27,7 @@
   <depend>tf2_msgs</depend>
   <depend>visualization_msgs</depend>
 
-  <depend>mir_driver_interfaces</depend>
+  <depend>usb_pushbutton_interfaces</depend>
 
   <exec_depend>twist_stamper</exec_depend>
   <exec_depend>mir_description</exec_depend>
