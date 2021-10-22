@@ -16,7 +16,7 @@ from geometry_msgs.msg import TwistStamped
 from nav_msgs.msg import Odometry
 from sensor_msgs.msg import LaserScan
 from tf2_msgs.msg import TFMessage
-from mir_driver_interfaces.srv import CheckReady
+from usb_pushbutton_interfaces.srv import CheckReady
 
 tf_prefix = ''
 
