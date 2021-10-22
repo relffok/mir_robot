@@ -1,0 +1,4 @@
+
+---
+bool success    # indicate successful run of triggered service
+bool ready      # ready state of node's service it depends on
