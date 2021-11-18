@@ -66,6 +66,7 @@ bt_navigator:
     #
     # Note: Not quite correct, params that are not mentioned can not be substituted!
     plugin_lib_names:
+    plugin_lib_names:
     - nav2_compute_path_to_pose_action_bt_node
     - nav2_compute_path_through_poses_action_bt_node
     - nav2_follow_path_action_bt_node
@@ -110,9 +111,10 @@ controller_server:
     min_x_velocity_threshold: 0.001
     min_y_velocity_threshold: 0.5
     min_theta_velocity_threshold: 0.001
-    failure_tolerance: 0.3
+    failure_tolerance: 0.1
+    # speed_limit_topic : "speed_limit"
     progress_checker_plugin: "progress_checker"
-    goal_checker_plugins: ["general_goal_checker"] # "precise_goal_checker"
+    goal_checker_plugins: ["goal_checker"]
     controller_plugins: ["FollowPath"]
 
     # Progress checker parameters
@@ -120,44 +122,51 @@ controller_server:
       plugin: "nav2_controller::SimpleProgressChecker"
       required_movement_radius: 0.5
       movement_time_allowance: 10.0
-    # Goal checker parameters
-    #precise_goal_checker:
-    #  plugin: "nav2_controller::SimpleGoalChecker"
-    #  xy_goal_tolerance: 0.25
-    #  yaw_goal_tolerance: 0.25
-    #  stateful: True
-    general_goal_checker:
-      stateful: True
+    goal_checker:
       plugin: "nav2_controller::SimpleGoalChecker"
       xy_goal_tolerance: 0.25
-      yaw_goal_tolerance: 0.25
-    # DWB parameters
+      yaw_goal_tolerance: 0.15
+      stateful: True
     FollowPath:
-      plugin: "nav2_regulated_pure_pursuit_controller::RegulatedPurePursuitController"
-      desired_linear_vel: 0.1    # low speed for setup
-      max_linear_accel: 2.0
-      max_linear_decel: 2.0
-      lookahead_dist: 0.4
-      min_lookahead_dist: 0.3
-      max_lookahead_dist: 0.9
-      lookahead_time: 1.5
-      rotate_to_heading_angular_vel: 1.0 # low speed for setup
-      transform_tolerance: 0.1
-      use_velocity_scaled_lookahead_dist: false
-      min_approach_linear_velocity: 0.05
-      use_approach_linear_velocity_scaling: true
-      max_allowed_time_to_collision: 1.0
-      use_regulated_linear_velocity_scaling: true
-      use_cost_regulated_linear_velocity_scaling: false
-      regulated_linear_scaling_min_radius: 0.9
-      regulated_linear_scaling_min_speed: 0.25
-      use_rotate_to_heading: true
-      allow_reversing: false #use_rotate_to_heading and allow_reversing cannot be set to true at the same time as it would result in ambiguous situations
-      rotate_to_heading_min_angle: 0.785
-      max_angular_accel: 1.5
-      cost_scaling_dist: 0.3
-      cost_scaling_gain: 1.0
-      inflation_cost_scaling_factor: 10.0
+      plugin: "dwb_core::DWBLocalPlanner"
+      debug_trajectory_details: True
+      min_vel_x: 0.0
+      min_vel_y: 0.0
+      max_vel_x: 2.5
+      max_vel_y: 0.0
+      max_vel_theta: 1.0
+      min_speed_xy: 0.0
+      max_speed_xy: 2.5
+      min_speed_theta: 0.0
+      acc_lim_x: 2.5
+      acc_lim_y: 0.0
+      acc_lim_theta: 3.2
+      decel_lim_x: -2.5
+      decel_lim_y: 0.0
+      decel_lim_theta: -3.2
+      vx_samples: 20
+      vy_samples: 5
+      vtheta_samples: 20
+      sim_time: 1.7
+      linear_granularity: 0.05
+      angular_granularity: 0.025
+      transform_tolerance: 0.2
+      xy_goal_tolerance: 0.25
+      trans_stopped_velocity: 0.25
+      short_circuit_trajectory_evaluation: True
+      stateful: True
+      critics: ["RotateToGoal", "Oscillation", "BaseObstacle", "GoalAlign", "PathAlign", "PathDist", "GoalDist", "ObstacleFootprint"]
+      BaseObstacle.scale: 0.02
+      GoalAlign.forward_point_distance: 0.1
+      GoalAlign.scale: 24.0
+      PathAlign.scale: 32.0
+      PathAlign.forward_point_distance: 0.325
+      PathDist.scale: 32.0
+      GoalDist.scale: 24.0
+      RotateToGoal.scale: 24.0
+      RotateToGoal.xy_goal_tolerance: 0.25
+      RotateToGoal.slowing_factor: 2.0
+      RotateToGoal.lookahead_time: -1.0
       
 controller_server_rclcpp_node:
   ros__parameters:
@@ -178,11 +187,12 @@ local_costmap:
       # offset: front / back from base_link
       # footprint: '[ [front, width/2], [back, width/2], [-back, -width/2], [front, -width/2] ]'
       footprint: '[ [0.5, 0.25], [-0.4, 0.25], [-0.4, -0.25], [0.5, -0.25] ]'
+      footprint_padding: 0.01
       plugins: ["voxel_layer", "inflation_layer"]
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
-        cost_scaling_factor: 3.5
-        inflation_radius: 0.5
+        inflation_radius: 0.55
+        cost_scaling_factor: 3.0
       voxel_layer:
         plugin: "nav2_costmap_2d::VoxelLayer"
         enabled: True
@@ -225,30 +235,38 @@ global_costmap:
       # offset: front / back from base_link
       # footprint: '[ [front, width/2], [back, width/2], [-back, -width/2], [front, -width/2] ]'
       footprint: '[ [0.5, 0.25], [-0.4, 0.25], [-0.4, -0.25], [0.5, -0.25] ]'
-      resolution: 0.05
+      footprint_padding: 0.01
       track_unknown_space: true
       plugins: ["static_layer", "obstacle_layer", "inflation_layer"]
       obstacle_layer:
         plugin: "nav2_costmap_2d::ObstacleLayer"
         enabled: True
         observation_sources: scan
+        footprint_clearing_enabled: true
+        max_obstacle_height: 2.0
+        combination_method: 1
         scan:
           topic: /scan
+          obstacle_max_range: 2.5
+          obstacle_min_range: 0.0
+          raytrace_max_range: 3.0
+          raytrace_min_range: 0.0
           max_obstacle_height: 2.0
+          min_obstacle_height: 0.0
           clearing: True
           marking: True
           data_type: "LaserScan"
-          raytrace_max_range: 3.0
-          raytrace_min_range: 0.0
-          obstacle_max_range: 2.5
-          obstacle_min_range: 0.0
+          inf_is_valid: false
       static_layer:
         plugin: "nav2_costmap_2d::StaticLayer"
         map_subscribe_transient_local: True
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
-        cost_scaling_factor: 10.0
-        inflation_radius: 0.5
+        enabled: true
+        inflation_radius: 0.55
+        cost_scaling_factor: 3.0
+        inflate_unknown: false
+        inflate_around_unknown: true
       always_send_full_costmap: True
   global_costmap_client:
     ros__parameters:
@@ -276,30 +294,10 @@ planner_server:
     use_sim_time: True
     planner_plugins: ["GridBased"]
     GridBased:
-      plugin: "nav2_smac_planner/SmacPlannerHybrid"
-      tolerance: 0.1                      # tolerance for planning if unable to reach exact pose, in meters, for 2D node
-      downsample_costmap: false           # whether or not to downsample the map
-      downsampling_factor: 1              # multiplier for the resolution of the costmap layer (e.g. 2 on a 5cm costmap would be 10cm)
-      allow_unknown: true                 # allow traveling in unknown space
-      max_iterations: 1000000             # maximum total iterations to search for before failing (in case unreachable), set to -1 to disable
-      max_on_approach_iterations: 1000    # maximum number of iterations to attempt to reach goal once in tolerance, 2D only
-      max_planning_time: 5.0              # max time in s for planner to plan, smooth, and upsample. Will scale maximum smoothing and upsampling times based on remaining time after planning.
-      motion_model_for_search: "DUBIN"    # 2D Moore, Von Neumann; Hybrid Dubin, Redds-Shepp; State Lattice set internally
-      cost_travel_multiplier: 5.0         # For 2D: Cost multiplier to apply to search to steer away from high cost areas. Larger values will place in the center of aisles more exactly (if non-`FREE` cost potential field exists) but take slightly longer to compute. To optimize for speed, a value of 1.0 is reasonable. A reasonable tradeoff value is 2.0. A value of 0.0 effective disables steering away from obstacles and acts like a naive binary search A*.
-      angle_quantization_bins: 64         # For Hybrid nodes: Number of angle bins for search, must be 1 for 2D node (no angle search)
-      minimum_turning_radius: 0.4         # For Hybrid nodes: minimum turning radius in m of path / vehicle
-      angle_quantization_bins: 64         # For Hybrid/Lattice nodes: Number of angle bins for search, must be 1 for 2D node (no angle search)
-      reverse_penalty: 1.0                # For Reeds-Shepp model: penalty to apply if motion is reversing, must be => 1
-      change_penalty: 0.15                # For Hybrid nodes: penalty to apply if motion is changing directions, must be >= 0
-      non_straight_penalty: 2.50          # For Hybrid nodes: penalty to apply if motion is non-straight, must be => 1
-      cost_penalty: 1.7                   # For Hybrid nodes: penalty to apply to higher cost areas when adding into the obstacle map dynamic programming distance expansion heuristic. This drives the robot more towards the center of passages. A value between 1.3 - 3.5 is reasonable.
-      lookup_table_size: 20.0               # For Hybrid nodes: Size of the dubin/reeds-sheep distance window to cache, in meters.
-      cache_obstacle_heuristic: True      # For Hybrid nodes: Cache the obstacle map dynamic programming distance expansion heuristic between subsiquent replannings of the same goal location. Dramatically speeds up replanning performance (40x) if costmap is largely static.     
-      smoother:
-        max_iterations: 1000
-        w_smooth: 0.3
-        w_data: 0.2
-        tolerance: 1e-10
+      plugin: "nav2_navfn_planner/NavfnPlanner"
+      tolerance: 0.5
+      use_astar: true
+      allow_unknown: true
 
 planner_server_rclcpp_node:
   ros__parameters:
