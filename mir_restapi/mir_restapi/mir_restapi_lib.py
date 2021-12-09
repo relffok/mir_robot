@@ -121,27 +121,27 @@ class MirRestAPI():
         return self.http.put("/setting", json.dumps({settingID: settingData}))
     
     def setDateTime(self):
-        timezone = pytz.timezone("Europe/Berlin")
+        tz_str = "Europe/Berlin"
+        timezone = pytz.timezone(tz_str)
         timeobj = datetime.now(timezone)
-        self.logger.info("REST API: Set Timezone to Europe/Berlin")
+        self.logger.info("REST API: Set Timezone to " + tz_str)
 
         dT = timeobj.strftime("%Y-%m-%dT%X")
         response = 'REST API: '
         try:
-            response = str(self.http.put("/status", json.dumps({'datetime': dT})))
+            response += str(self.http.put("/status", json.dumps({'datetime': dT})))
         except Exception as e:
             if str(e) == "timed out":
                 # setting datetime over REST API seems not to be intended
                 # that's why there is no response accompanying the PUT request,
                 # therefore a time out occurs, however time has been set correctly
-                response += "Set datetime"
-            else:
-                response = "Error setting datetime"
-        response = response + " to " + dT
-        
-        self.logger.info(response)
-        self.logger.info("REST API: Setting time Mir triggers emergency stop, please unlock.")
+                response += "Set datetime to " + dT + " in timezone " + tz_str
+                self.logger.info("REST API: Setting time Mir triggers emergency stop, please unlock.")
+                self.logger.info(response)
+                return response
+        response += " Error setting datetime"
         return response
+        
     
     def getDistanceStatistics(self):
         response = self.http.get("/statistics/distance")

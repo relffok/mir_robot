@@ -63,7 +63,7 @@ class MirRestAPIServer(Node):
         # Request
         if self.api_handle.isConnected(print=False):
             # produces an unavoidable connection timeout
-            response.message = self.api_handle.setDateTime() 
+            response.message = self.api_handle.setDateTime()
             # this is needed, so that the connection timeout can be ignored
             self.get_logger().info('REST API: Waiting to close connection: 10s')
             time.sleep(5) 
@@ -71,12 +71,14 @@ class MirRestAPIServer(Node):
             time.sleep(5)
             self.api_handle.close()
             
-            response.success = True
-            self.get_logger().info(response.message)
+            if "Error" in response.message:
+                response.success = False
+            else:
+                response.success = True
         else:
             response.success = False
-            response.message = "ERROR: Setting Time failed"
-            self.get_logger().error(response.message)
+            response.message = "ERROR: Couldn't connect to REST API"
+        self.get_logger().error(response.message)
         return response
 
 
