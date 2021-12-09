@@ -48,7 +48,7 @@ class MirRestAPIServer(Node):
             # produces an unavoidable connection timeout
             response.message = self.api_handle.setDateTime() 
             # this is needed, so that the connection timeout can be ignored
-            self.logger.info('REST API: Waiting to close connection: 10s')
+            self.get_logger().info('REST API: Waiting to close connection: 10s')
             time.sleep(5) 
             self.get_logger().info('REST API: Waiting to close connection: 5s')
             time.sleep(5)
