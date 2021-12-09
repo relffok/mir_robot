@@ -34,12 +34,12 @@ def generate_launch_description():
 
         DeclareLaunchArgument(
             'rviz_enabled',
-            default_value='true',
+            default_value='false',
             description='Set to true to launch rviz.'),
 
         DeclareLaunchArgument(
             'rviz_config_file',
-            default_value=os.path.join(mir_description_dir, 'rviz', 'mir_visu_full.rviz'),
+            default_value=os.path.join(mir_description_dir, 'rviz', 'mir_visualization.rviz'),
             description='Define rviz config file to be used.'),
 
         DeclareLaunchArgument(
@@ -54,7 +54,7 @@ def generate_launch_description():
 
         DeclareLaunchArgument(
             'teleop_enabled',
-            default_value='true',
+            default_value='false',
             description='Set to true to manually operate the robot'),
 
         IncludeLaunchDescription(
