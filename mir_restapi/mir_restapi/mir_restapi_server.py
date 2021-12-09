@@ -6,19 +6,31 @@ from rclpy.node import Node
 
 import mir_restapi.mir_restapi_lib
 from std_srvs.srv import Trigger
+from rcl_interfaces.msg import SetParametersResult
 
 
 class MirRestAPIServer(Node):
 
-    def __init__(self, hostname, auth):
+    def __init__(self, hostname):
         super().__init__('mir_restapi_server')
         self.get_logger().info("mir_restapi_server started")
-
-        self.api_handle = mir_restapi.mir_restapi_lib.MirRestAPI(
-            self.get_logger(), hostname, auth)
-        self.get_logger().info("created MirRestAPI handle")
-
+        
+        self.hostname = hostname
         self.create_api_services()
+
+        self.declare_parameter('auth', "")
+        self.auth = self.get_parameter('auth').get_parameter_value().string_value
+        self.add_on_set_parameters_callback(self.parameters_callback)
+    
+    def parameters_callback(self, params):
+        for param in params:
+            if param.name == "auth":
+                self.get_logger().info("Received auth token")
+                self.auth = param.value
+                self.api_handle = mir_restapi.mir_restapi_lib.MirRestAPI(
+                    self.get_logger(), self.hostname, self.auth)
+                self.get_logger().info("created MirRestAPI handle")
+        return SetParametersResult(successful=True)
         
     def create_api_services(self):
         self.restAPI_setTime = self.create_service(
@@ -67,8 +79,7 @@ def main(args=None):
     rclpy.init(args=args)
 
     hostname = "192.168.12.20"
-    auth = ""
-    mir_restapi_server = MirRestAPIServer(hostname, auth)
+    mir_restapi_server = MirRestAPIServer(hostname)
 
     rclpy.spin(mir_restapi_server)
     rclpy.shutdown()
