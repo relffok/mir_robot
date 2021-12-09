@@ -141,10 +141,7 @@ class MirRestAPI():
         
         self.logger.info(response)
         self.logger.info("REST API: Setting time Mir triggers emergency stop, please unlock.")
-        self.logger.info('REST API: Waiting to close connection: 10s')
-        time.sleep(5) # this is needed, so that the connection timeout can be ignored
-        self.logger.info('REST API: Waiting to close connection: 5s')
-        time.sleep(5)
+        return response
     
     def getDistanceStatistics(self):
         response = self.http.get("/statistics/distance")
