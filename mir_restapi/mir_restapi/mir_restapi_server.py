@@ -44,14 +44,16 @@ class MirRestAPIServer(Node):
         self.connectRESTapi()
         
         # Request
-        if self.api_handle.isConnected(printSuccess=False):
+        if self.api_handle.isConnected(print=False):
             self.api_handle.setDateTime() # produces an unavoidable connection timeout
             self.api_handle.close()
             response.success = True
             response.message = "Set Time succesfully"
+            self.get_logger().info(response.message)
         else:
             response.success = False
             response.message = "ERROR: Setting Time failed"
+            self.get_logger().error(response.message)
         return response
 
 

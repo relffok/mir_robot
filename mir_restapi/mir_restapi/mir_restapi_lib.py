@@ -67,18 +67,19 @@ class MirRestAPI():
         self.http.__del__()
         self.logger.info("REST API: Connection closed")
 
-    def isConnected(self, printSuccess=True):
+    def isConnected(self, print=True):
         if not self.http.isValid():
             self.logger.warn('REST API: Http-Connection is not valid')
             return False
         try:
             self.http.connection.connect()
             self.http.connection.close()
+            if print:
+                self.logger.info("REST API: Connected!")
         except Exception as e:
-            self.logger.warn('REST API: Attempt to connect failed: ' + str(e))
+            if print:
+                self.logger.warn('REST API: Attempt to connect failed: ' + str(e))
             return False
-        if printSuccess:
-            self.logger.info("REST API: Connected!")
         return True
 
     def getStatus(self):
