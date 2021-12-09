@@ -52,6 +52,7 @@ class MirRestAPIServer(Node):
         else:
             response.success = False
             response.message = "ERROR: Setting Time failed"
+        return response
 
 
 def main(args=None):
