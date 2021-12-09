@@ -2,29 +2,27 @@ import time
 import sys
 
 import rclpy
-from rclpy.action import ActionServer
 from rclpy.node import Node
 
 import mir_restapi.mir_restapi_lib
-import mir_restapi.action
+from std_srvs.srv import Trigger
 
 
-class MirRestAPIActionServer(Node):
+class MirRestAPIServer(Node):
 
     def __init__(self, hostname, auth):
-        super().__init__('mir_restapi')
+        super().__init__('mir_restapi_server')
 
         self.api_handle = mir_restapi.mir_restapi_lib.MirRestAPI(
             self.get_logger(), hostname, auth)
 
-        # ===
-        # Action server definitions
-        # ===
-        self.mir100_setTime_action_server = ActionServer(
-            self,
-            mir_restapi.action.mir100_setTime,
+        self.create_api_services()
+        
+    def create_api_services(self):
+        self.restAPI_setTime = self.create_service(
+            Trigger,
             'mir100_setTime',
-            self.mir100_setTime)
+            self.api_setTime_callback)
     
     def connectRESTapi(self):
         self.get_logger().info('REST API: Waiting for connection')
@@ -38,35 +36,19 @@ class MirRestAPIActionServer(Node):
             i += 1
             time.sleep(1)
 
-
-    # ===
-    # Action server callbacks
-    # ===
-
-    def mir100_setTime(self, goal_handle):
-        self.get_logger().info('Executing goal...')
-        # Feedback
-        feedback_msg = mir_restapi.action.mir100_setTime.Feedback()
-        feedback_msg.settingTime = "true"
-        self.get_logger().info('Feedback: {}'.format(feedback_msg.settingTime))
-        goal_handle.publish_feedback(feedback_msg)
-
+    def api_setTime_callback(self, request, response):
+        self.get_logger().info('Attempting to setTime through REST API...')
         self.connectRESTapi()
         
-        # options:
-        # goal_handle.request.options
-
         # Request
         if self.api_handle.isConnected(printSuccess=False):
             self.api_handle.setDateTime() # produces an unavoidable connection timeout
             self.api_handle.close()
-
-        goal_handle.succeed()
-
-        # Result
-        result = mir_restapi.action.mir100_setTime.Result()
-        result.setTime = "true"
-        return result
+            response.success = True
+            response.message = "Set Time succesfully"
+        else:
+            response.success = False
+            response.message = "ERROR: Setting Time failed"
 
 
 def main(args=None):
@@ -74,9 +56,10 @@ def main(args=None):
 
     hostname = "192.168.12.20"
     auth = ""
-    mir_restapi_server = MirRestAPIActionServer(hostname, auth)
+    mir_restapi_server = MirRestAPIServer(hostname, auth)
 
     rclpy.spin(mir_restapi_server)
+    rclpy.shutdown()
 
 
 if __name__ == '__main__':
