@@ -77,7 +77,7 @@ class MirRestAPIServer(Node):
                 response.success = True
         else:
             response.success = False
-            response.message = "ERROR: Couldn't connect to REST API"
+            response.message = "ERROR: Couldn't set time"
         self.get_logger().error(response.message)
         return response
 
