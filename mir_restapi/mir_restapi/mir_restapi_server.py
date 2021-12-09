@@ -12,9 +12,11 @@ class MirRestAPIServer(Node):
 
     def __init__(self, hostname, auth):
         super().__init__('mir_restapi_server')
+        self.get_logger().info("mir_restapi_server started")
 
         self.api_handle = mir_restapi.mir_restapi_lib.MirRestAPI(
             self.get_logger(), hostname, auth)
+        self.get_logger().info("created MirRestAPI handle")
 
         self.create_api_services()
         
@@ -23,6 +25,7 @@ class MirRestAPIServer(Node):
             Trigger,
             'mir100_setTime',
             self.api_setTime_callback)
+        self.get_logger().info("Listening on 'mir100_setTime' for timeset call!")
     
     def connectRESTapi(self):
         self.get_logger().info('REST API: Waiting for connection')
