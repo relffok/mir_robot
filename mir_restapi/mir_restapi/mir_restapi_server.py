@@ -52,6 +52,9 @@ class MirRestAPIServer(Node):
             time.sleep(1)
 
     def api_setTime_callback(self, request, response):
+        if self.auth == "":
+            self.get_logger().error('API token not set yet')
+            return
         self.get_logger().info('Attempting to setTime through REST API...')
         self.connectRESTapi()
         
