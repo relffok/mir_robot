@@ -97,21 +97,18 @@ def generate_launch_description():
     )
 
     def process_namespace(context):
-        # namespace = context.launch_configurations['namespace']
-        # robot_description_topic = "robot_description"
-        # robot_name = "mir_robot"
-        # if namespace != "" :
-        #     robot_description_topic = namespace + '/' + robot_description_topic
-        #     robot_name = namespace + '/' + robot_name
-        # return [SetLaunchConfiguration('robot_description_topic', robot_description_topic), 
-        #         SetLaunchConfiguration('robot_name', robot_name)]
-        pass
+        robot_name = "mir_robot"
+        try:
+            namespace = context.launch_configurations['namespace']
+            robot_name = namespace + '/' + robot_name
+        except KeyError:
+            pass
+        return [SetLaunchConfiguration('robot_name', robot_name)]
 
     spawn_robot = Node(
         package='gazebo_ros',
         executable='spawn_entity.py',
-        # TODO: check possibility of namespace as robot name
-        arguments=['-entity', 'mir_robot', 
+        arguments=['-entity', LaunchConfiguration('robot_name'), 
                    '-topic', 'robot_description',
                    '-robot_namespace', LaunchConfiguration('namespace')],
         namespace = LaunchConfiguration('namespace'),
