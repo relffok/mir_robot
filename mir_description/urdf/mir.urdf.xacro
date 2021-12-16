@@ -30,5 +30,4 @@
     right_wheel_joint="${prefix}right_wheel_joint"
     wheel_separation="${2*mir_100_act_wheel_dy}"
     wheel_radius="${mir_100_act_wheel_radius}"/>
-
 </robot>

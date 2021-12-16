@@ -10,7 +10,10 @@ class fake_mir_joint_publisher(Node):
 
     def __init__(self):
         super().__init__('fake_mir_joint_publisher')
-        prefix = self.declare_parameter('~prefix', '').value
+        if self.get_namespace() != "/":
+            prefix = self.get_namespace().strip("/") + "/"
+        else:   
+            prefix = ""
         pub = self.create_publisher(
                 msg_type=JointState,
                 topic='joint_states',

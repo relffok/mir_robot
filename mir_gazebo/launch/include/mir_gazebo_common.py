@@ -18,21 +18,20 @@ def generate_launch_description():
             default_value='',
             description='Namespace to push all topics into.'),
 
-        # TODO: check add namespace remapping
         Node(
             package='ira_laser_tools',
             name='mir_laser_scan_merger',
-            namespace=LaunchConfiguration('namespace'),
             executable='laserscan_multi_merger',
             parameters=[
                 {'laserscan_topics': "b_scan f_scan",
                 'destination_frame': "virtual_laser_link",
-                'scan_destination_topic': 'scan',
-                'cloud_destination_topic': 'scan_cloud',
+                'scan_destination_topic': "scan",
+                'cloud_destination_topic': "scan_cloud",
                 'min_height': -0.25,
                 'max_completion_time': 0.05,
                 'max_merge_time_diff': 0.005,
                 'use_sim_time': LaunchConfiguration('use_sim_time'),
                 'best_effort': False}],
+            namespace = LaunchConfiguration('namespace'),
             output='screen')
     ])
