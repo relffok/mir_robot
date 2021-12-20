@@ -11,22 +11,29 @@ from rcl_interfaces.msg import SetParametersResult
 
 class MirRestAPIServer(Node):
 
-    def __init__(self, hostname):
+    def __init__(self):
         super().__init__('mir_restapi_server')
         self.get_logger().info("mir_restapi_server started")
         
-        self.hostname = hostname
         self.create_api_services()
 
-        self.declare_parameter('auth', "")
-        self.auth = self.get_parameter('auth').get_parameter_value().string_value
+        self.declare_parameter('mir_hostname', "")
+        self.hostname = self.get_parameter('mir_hostname').get_parameter_value().string_value
+
+        self.declare_parameter('mir_restapi_auth', "")
+        self.auth = self.get_parameter('mir_restapi_auth').get_parameter_value().string_value
+        
         self.add_on_set_parameters_callback(self.parameters_callback)
     
     def parameters_callback(self, params):
         for param in params:
-            if param.name == "auth":
+            if param.name == "mir_restapi_auth":
                 self.get_logger().info("Received auth token")
                 self.auth = param.value
+            if param.name == "mir_restapi_auth":
+                self.get_logger().info("Set mir hostname")
+                self.hostname = param.value
+            if self.hostname != "" and self.auth != "" and self.api_handle == None:
                 self.api_handle = mir_restapi.mir_restapi_lib.MirRestAPI(
                     self.get_logger(), self.hostname, self.auth)
                 self.get_logger().info("created MirRestAPI handle")
@@ -40,6 +47,9 @@ class MirRestAPIServer(Node):
         self.get_logger().info("Listening on 'mir100_setTime' for timeset call!")
     
     def connectRESTapi(self):
+        if self.api_handle == None:
+            return -1
+        
         self.get_logger().info('REST API: Waiting for connection')
         i = 1
         while not self.api_handle.isConnected():
@@ -47,18 +57,23 @@ class MirRestAPIServer(Node):
                 sys.exit(0)
             if i > 5:
                 self.get_logger().error('REST API: Could not connect, giving up')
-                break
+                return 0
             i += 1
             time.sleep(1)
+        return 1
+    
+    def reponse_api_handle_non_existing(self, response):
+        response.success = False
+        response.message = 'API token and/or hostname not set yet'
+        self.get_logger().error(response.message)
+        return response
 
     def api_setTime_callback(self, request, response):
-        if self.auth == "":
-            response.success = False
-            response.message = 'API token not set yet'
-            self.get_logger().error(response.message)
-            return response
         self.get_logger().info('Attempting to setTime through REST API...')
-        self.connectRESTapi()
+        
+        if self.connectRESTapi() == -1:
+            response = self.reponse_api_handle_non_existing(response)
+            return response
         
         # Request
         if self.api_handle.isConnected(print=False):
@@ -77,7 +92,7 @@ class MirRestAPIServer(Node):
                 response.success = True
         else:
             response.success = False
-            response.message = "ERROR: Couldn't set time"
+            response.message = "ERROR: Couldn't connect to REST API"
         self.get_logger().error(response.message)
         return response
 
@@ -85,8 +100,7 @@ class MirRestAPIServer(Node):
 def main(args=None):
     rclpy.init(args=args)
 
-    hostname = "192.168.12.20"
-    mir_restapi_server = MirRestAPIServer(hostname)
+    mir_restapi_server = MirRestAPIServer()
 
     rclpy.spin(mir_restapi_server)
     rclpy.shutdown()

@@ -59,8 +59,8 @@ class MirRestAPI():
         self.logger = logger
         if hostname is not None:
             address = hostname + ":80"
-        else:
-            address="192.168.12.20:80"
+        # else:
+        #     address="192.168.12.20:80"
         self.http = HttpConnection(logger, address, auth, "/api/v2.0.0")
 
     def close(self):
