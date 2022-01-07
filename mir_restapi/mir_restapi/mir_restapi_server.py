@@ -13,17 +13,25 @@ class MirRestAPIServer(Node):
 
     def __init__(self):
         super().__init__('mir_restapi_server')
-        self.get_logger().info("mir_restapi_server started")
-        
-        self.create_api_services()
+        self.get_logger().info("started")
 
+        # parameters: hostname, api_token
         self.declare_parameter('mir_hostname', "")
         self.hostname = self.get_parameter('mir_hostname').get_parameter_value().string_value
-
         self.declare_parameter('mir_restapi_auth', "")
         self.auth = self.get_parameter('mir_restapi_auth').get_parameter_value().string_value
-        
         self.add_on_set_parameters_callback(self.parameters_callback)
+
+        self.api_handle = None
+        self.setup_api_handle()
+
+        self.create_services()
+    
+    def setup_api_handle(self):
+        if self.hostname != "" and self.auth != "" and self.api_handle == None:
+            self.api_handle = mir_restapi.mir_restapi_lib.MirRestAPI(
+                self.get_logger(), self.hostname, self.auth)
+            self.get_logger().info("created MirRestAPI handle")
     
     def parameters_callback(self, params):
         for param in params:
@@ -33,13 +41,10 @@ class MirRestAPIServer(Node):
             if param.name == "mir_restapi_auth":
                 self.get_logger().info("Set mir hostname")
                 self.hostname = param.value
-            if self.hostname != "" and self.auth != "" and self.api_handle == None:
-                self.api_handle = mir_restapi.mir_restapi_lib.MirRestAPI(
-                    self.get_logger(), self.hostname, self.auth)
-                self.get_logger().info("created MirRestAPI handle")
+        self.setup_api_handle()
         return SetParametersResult(successful=True)
         
-    def create_api_services(self):
+    def create_services(self):
         self.restAPI_setTime = self.create_service(
             Trigger,
             'mir100_setTime',
