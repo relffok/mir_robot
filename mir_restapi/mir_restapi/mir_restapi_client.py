@@ -9,13 +9,14 @@ class MirRestAPIClient(Node):
 
     def __init__(self):
         super().__init__('mir_restapi_client')
-        self.create_api_clients()
+        self.create_api_clients()        
 
-        T = 10
-        self.get_logger().info("started, calling service in %i s" % T)
-        time.sleep(T)
+    def create_api_clients(self):
+        self.restAPI_setTime = self.create_client(
+            Trigger,
+            'mir100_setTime')
 
-        # call service
+    def set_mir_time(self):
         self.get_logger().info("calling time set service")
         req = Trigger.Request()
         future = self.restAPI_setTime.call_async(req)
@@ -30,12 +31,6 @@ class MirRestAPIClient(Node):
                 self.get_logger().info(res.message)
             else:
                 self.get_logger().error(res.message)
-        
-
-    def create_api_clients(self):
-        self.restAPI_setTime = self.create_client(
-            Trigger,
-            'mir100_setTime')
 
 
 def main(args=None):
