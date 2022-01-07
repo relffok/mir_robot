@@ -51,7 +51,7 @@ class MirRestAPIServer(Node):
             self.api_setTime_callback)
         self.get_logger().info("Listening on 'mir100_setTime' for timeset call!")
     
-    def connectRESTapi(self):
+    def test_api_connection(self):
         if self.api_handle == None:
             return -1
         
@@ -67,7 +67,7 @@ class MirRestAPIServer(Node):
             time.sleep(1)
         return 1
     
-    def reponse_api_handle_non_existing(self, response):
+    def reponse_api_handle_not_exists(self, response):
         response.success = False
         response.message = 'API token and/or hostname not set yet'
         self.get_logger().error(response.message)
@@ -76,8 +76,8 @@ class MirRestAPIServer(Node):
     def api_setTime_callback(self, request, response):
         self.get_logger().info('Attempting to setTime through REST API...')
         
-        if self.connectRESTapi() == -1:
-            response = self.reponse_api_handle_non_existing(response)
+        if self.test_api_connection() == -1:
+            response = self.reponse_api_handle_not_exists(response)
             return response
         
         # Request
