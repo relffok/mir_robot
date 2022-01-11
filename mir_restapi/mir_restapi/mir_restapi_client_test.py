@@ -10,7 +10,9 @@ class MirRestAPIClient(Node):
     def __init__(self):
         super().__init__('mir_restapi_client')
         self.create_api_clients()
-
+        
+        self.get_logger().info('Calling timeset service in 10 s')
+        time.sleep(10)
         self.set_mir_time()
 
     def create_api_clients(self):
