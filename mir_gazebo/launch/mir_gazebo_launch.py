@@ -19,6 +19,11 @@ def generate_launch_description():
 
     ld = LaunchDescription()
 
+    declare_prefix_arg = DeclareLaunchArgument(
+        'prefix',
+        default_value='',
+        description='Robot prefix')
+
     declare_namespace_arg = DeclareLaunchArgument(
         'namespace',
         default_value='',
@@ -110,9 +115,9 @@ def generate_launch_description():
         executable='spawn_entity.py',
         arguments=['-entity', LaunchConfiguration('robot_name'), 
                    '-topic', 'robot_description',
-                   '-robot_namespace', LaunchConfiguration('namespace')],
-        namespace = LaunchConfiguration('namespace'),
-        # TODO: add spawning position
+                   '-b', # bond node to gazebo model,
+                ],
+        namespace=LaunchConfiguration('namespace'),
         output='screen')
 
     launch_rviz = Node(
@@ -131,6 +136,7 @@ def generate_launch_description():
         prefix='xterm -e')
 
     ld.add_action(OpaqueFunction(function=process_namespace))
+    ld.add_action(declare_prefix_arg)
     ld.add_action(declare_namespace_arg)
     ld.add_action(declare_robot_x_arg)
     ld.add_action(declare_robot_y_arg)

@@ -1,12 +1,32 @@
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
+from launch.actions.set_launch_configuration import SetLaunchConfiguration
+from launch.actions import OpaqueFunction
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 
 
 def generate_launch_description():
 
+    # def process_prefix(context):
+    #     namespace = ""
+    #     try:
+    #         prefix = context.launch_configurations['prefix']
+    #         try:
+    #             namespace = context.launch_configurations['namespace']
+    #         except KeyError: # No namespace
+    #             namespace = prefix
+    #         namespace = namespace + '/' + prefix
+    #     except KeyError:
+    #         pass
+    #     return [SetLaunchConfiguration('namspace_parsed', namespace)]
+
+
+    namespace = LaunchConfiguration('namespace', default='')
+
     return LaunchDescription([
+
+        #OpaqueFunction(function=process_prefix),
 
         DeclareLaunchArgument(
             'use_sim_time',
@@ -14,9 +34,9 @@ def generate_launch_description():
             description='Use simulation (Gazebo) clock if true'),
 
         DeclareLaunchArgument(
-            'namespace',
+            'prefix',
             default_value='',
-            description='Namespace to push all topics into.'),
+            description='Robot prefix'),
 
         Node(
             package='ira_laser_tools',
@@ -32,6 +52,6 @@ def generate_launch_description():
                 'max_merge_time_diff': 0.005,
                 'use_sim_time': LaunchConfiguration('use_sim_time'),
                 'best_effort': False}],
-            namespace = LaunchConfiguration('namespace'),
+            namespace = LaunchConfiguration('namespace'),    # adds namespace to topic names and frames
             output='screen')
     ])

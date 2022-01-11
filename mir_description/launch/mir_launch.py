@@ -16,6 +16,7 @@ def generate_launch_description():
 
     def create_robot_description(context):
       namespace = context.launch_configurations['namespace']
+      prefix = context.launch_configurations['prefix']
       urdf_dir = os.path.join(mir_description_dir, 'urdf')
       xacro_file = os.path.join(urdf_dir, 'mir.urdf.xacro')
       doc = xacro.process_file(xacro_file, mappings={'tf_prefix' : namespace})
@@ -25,9 +26,14 @@ def generate_launch_description():
     return LaunchDescription([
 
       DeclareLaunchArgument(
+        'prefix',
+        default_value='',
+        description='Robot prefix'),
+
+      DeclareLaunchArgument(
         'namespace',
         default_value='',
-        description='Robot namespace'),
+        description='Namespace to push all topics to'),
 
       DeclareLaunchArgument(
         'joint_state_publisher_enabled',
