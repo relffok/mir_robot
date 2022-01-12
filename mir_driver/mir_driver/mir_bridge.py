@@ -11,7 +11,7 @@ import sys
 from collections.abc import Iterable
 
 import mir_driver.rosbridge
-#from mir_restapi.mir_restapi.mir_restapi_client import MirRestAPIClient
+from mir_restapi.mir_restapi.mir_restapi_client import MirRestAPIClient
 from rclpy_message_converter import message_converter
 from geometry_msgs.msg import TwistStamped
 from nav_msgs.msg import Odometry
@@ -384,8 +384,8 @@ class MiR100BridgeNode(Node):
 
         # Connect to Mir REST API: set date time
         # call ROS action server here if needed
-        # restapi_client = MirRestAPIClient()
-        # restapi_client.set_mir_time()
+        restapi_client = MirRestAPIClient()
+        restapi_client.set_mir_time()
         
         # Connect to ROSbridge
         self.get_logger().info('Trying to connect to ROSbridge at %s:%i...' % (hostname, port))

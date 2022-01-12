@@ -25,6 +25,7 @@
   <depend>sensor_msgs</depend>
   <depend>std_msgs</depend>
   <depend>tf2_msgs</depend>
+  <depend>mir_restapi</depend>
   <depend>visualization_msgs</depend>
 
   <exec_depend>twist_stamper</exec_depend>
