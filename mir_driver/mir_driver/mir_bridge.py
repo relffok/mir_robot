@@ -11,7 +11,7 @@ import sys
 from collections.abc import Iterable
 
 import mir_driver.rosbridge
-from mir_restapi.mir_restapi.mir_restapi_client import MirRestAPIClient
+from mir_restapi_client import MirRestAPIClient
 from rclpy_message_converter import message_converter
 from geometry_msgs.msg import TwistStamped
 from nav_msgs.msg import Odometry
