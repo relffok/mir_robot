@@ -61,7 +61,8 @@ def generate_launch_description():
             PythonLaunchDescriptionSource(
                 os.path.join(mir_description_dir, 'launch', 'mir_launch.py')),
             launch_arguments={
-                'joint_state_publisher_enabled': 'false'
+                'joint_state_publisher_enabled': 'false',
+                'namespace' : LaunchConfiguration('namespace')
             }.items(),
             condition=IfCondition(LaunchConfiguration('robot_state_publisher_enabled'))
         ),
@@ -70,6 +71,7 @@ def generate_launch_description():
             package='mir_driver',
             executable='mir_bridge',
             parameters=[{'use_sim_time': LaunchConfiguration('use_sim_time')}],
+            namespace=LaunchConfiguration('namespace'),
             output='screen'),
 
         Node(
@@ -77,6 +79,7 @@ def generate_launch_description():
             executable='fake_mir_joint_publisher',
             remappings=[('use_sim_time', LaunchConfiguration('use_sim_time'))],
             parameters=[{'rviz_enabled': 'false'}],
+            namespace=LaunchConfiguration('namespace'),
             output='screen'),
 
         Node(
@@ -98,7 +101,8 @@ def generate_launch_description():
             remappings=[
                 ('cmd_vel_in', 'cmd_vel'),
                 ('cmd_vel_out', 'cmd_vel_stamped'),
-            ]
+            ],
+            namespace=LaunchConfiguration('namespace'),
         ),
 
         Node(
@@ -112,13 +116,15 @@ def generate_launch_description():
             remappings=[
                 ('cmd_vel_in', 'cmd_vel'),
                 ('cmd_vel_out', 'cmd_vel_stamped'),
-            ]
+            ],
+            namespace=LaunchConfiguration('namespace')
         ),
 
         Node(
             condition=IfCondition(LaunchConfiguration("teleop_enabled")),
             package='teleop_twist_keyboard',
             executable='teleop_twist_keyboard',
+            namespace=LaunchConfiguration('namespace'),
             output='screen',
             prefix='xterm -e'),
 
@@ -137,6 +143,7 @@ def generate_launch_description():
                          'alow_scan_delay': True,
                          'use_sim_time': use_sim_time,
                          'best_effort': False}],
+            namespace=LaunchConfiguration('namespace'),
             output='screen')
 
     ])

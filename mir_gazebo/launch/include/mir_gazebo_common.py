@@ -8,35 +8,14 @@ from launch_ros.actions import Node
 
 def generate_launch_description():
 
-    # def process_prefix(context):
-    #     namespace = ""
-    #     try:
-    #         prefix = context.launch_configurations['prefix']
-    #         try:
-    #             namespace = context.launch_configurations['namespace']
-    #         except KeyError: # No namespace
-    #             namespace = prefix
-    #         namespace = namespace + '/' + prefix
-    #     except KeyError:
-    #         pass
-    #     return [SetLaunchConfiguration('namspace_parsed', namespace)]
-
-
     namespace = LaunchConfiguration('namespace', default='')
 
     return LaunchDescription([
-
-        #OpaqueFunction(function=process_prefix),
 
         DeclareLaunchArgument(
             'use_sim_time',
             default_value='true',
             description='Use simulation (Gazebo) clock if true'),
-
-        DeclareLaunchArgument(
-            'prefix',
-            default_value='',
-            description='Robot prefix'),
 
         Node(
             package='ira_laser_tools',

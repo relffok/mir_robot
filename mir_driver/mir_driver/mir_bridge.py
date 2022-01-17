@@ -43,7 +43,7 @@ def _tf_dict_filter(msg_dict, to_ros2):
     filtered_msg_dict = copy.deepcopy(msg_dict)
 
     for transform in filtered_msg_dict['transforms']:
-        transform['child_frame_id'] = transform['child_frame_id'].strip('/')
+        transform['child_frame_id'] = tf_prefix + transform['child_frame_id'].strip('/')
         transform['header'] = _convert_ros_header(transform['header'], to_ros2)
     return filtered_msg_dict
 
@@ -82,11 +82,13 @@ def _convert_ros_header(header_msg_dict, to_ros2):
     header_dict['stamp'] = _convert_ros_time(header_dict['stamp'], to_ros2)
     if to_ros2:
         del header_dict['seq']
+        frame_id = header_dict['frame_id'].strip('/') 
+        header_dict['frame_id'] = tf_prefix + frame_id
     else:  # to ros1
         header_dict['seq'] = 0
+        # remove tf_prefix to frame_id
 
     return header_dict
-
 
 def _prepend_tf_prefix_dict_filter(msg_dict):
     # filtered_msg_dict = copy.deepcopy(msg_dict)
@@ -137,11 +139,6 @@ def _remove_tf_prefix_dict_filter(msg_dict):
             for item in value:
                 _remove_tf_prefix_dict_filter(item)
     return msg_dict
-
-
-
-
-
 
 # topics we want to publish to ROS (and subscribe to from the MiR)
 PUB_TOPICS = [
@@ -378,7 +375,10 @@ class MiR100BridgeNode(Node):
         assert isinstance(port, int), 'port parameter must be an integer'
 
         global tf_prefix
-        tf_prefix = self.declare_parameter('~tf_prefix', '').value.strip('/')
+        self.declare_parameter('tf_prefix', '')
+        tf_prefix = self.get_parameter('tf_prefix').get_parameter_value().string_value.strip('/')
+        if tf_prefix != "":
+            tf_prefix = tf_prefix + '/'
 
         self.get_logger().info('Trying to connect to %s:%i...' % (hostname, port))
         self.robot = mir_driver.rosbridge.RosbridgeSetup(hostname, port)
