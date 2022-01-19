@@ -386,6 +386,9 @@ class MiR100BridgeNode(Node):
         # call ROS action server here if needed
         restapi_client = MirRestAPIClient()
         restapi_client.set_mir_time()
+
+        # fix for connection refused?
+        time.sleep(5)
         
         # Connect to ROSbridge
         self.get_logger().info('Trying to connect to ROSbridge at %s:%i...' % (hostname, port))
