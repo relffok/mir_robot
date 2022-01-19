@@ -1,3 +1,4 @@
+from http.client import CannotSendRequest
 import time
 import sys
 
@@ -87,11 +88,13 @@ class MirRestAPIServer(Node):
             # this is needed, so that the connection timeout can be ignored
             status = ""
             while status == "":
-                self.get_logger().info('REST API: Waiting for Restapi to restart...')
-                time.sleep(1)
-                status = self.api_handle.getStatus()
+                try:
+                    status = self.api_handle.getStatus()
+                except CannotSendRequest:
+                    self.get_logger().info('REST API: Waiting for Restapi to restart...')
                 print("status=")
                 print(status)
+                time.sleep(1)
             
             self.api_handle.close()
             
