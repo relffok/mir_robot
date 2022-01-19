@@ -82,6 +82,23 @@ class MirRestAPI():
             return False
         return True
 
+    def isAvailable(self):
+        status = json.dumps(self.getStatus())
+        if "service_unavailable" in status:
+            return False
+        else:
+            return True
+    
+    def waitForAvailable(self):
+        while True:
+            if self.isConnected(print=False):
+                if self.isAvailable():
+                    self.logger.info('REST API: available')
+                    break
+                else:
+                    self.logger.info('REST API: unavailable... waiting')
+                    time.sleep(1)
+
     def getStatus(self):
         response = self.http.get("/status")
         return json.loads(response.read())
@@ -138,6 +155,10 @@ class MirRestAPI():
                 response += "Set datetime to " + dT + " in timezone " + tz_str
                 self.logger.info("REST API: Setting time Mir triggers emergency stop, please unlock.")
                 self.logger.info(response)
+                
+                # this is needed, because a timeset restarts the restAPI
+                self.waitForAvailable()
+                
                 return response
         response += " Error setting datetime"
         return response
@@ -162,6 +183,10 @@ class MirRestAPI():
     def getMissionGuid(self, mission_name):
         missions = self.getMissions()
         return next((mis["guid"] for mis in missions if mis["name"]==mission_name), None)
+
+    def getSounds(self):
+        response = self.http.get("/sounds")
+        return json.loads(response.read())
 
     def moveTo(self, position, mission="MoveTo"):
         mis_guid = self.getMissionGuid(mission)
