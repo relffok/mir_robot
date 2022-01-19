@@ -24,8 +24,7 @@ setup(
     entry_points={
         'console_scripts': [
             'mir_restapi_server = mir_restapi.mir_restapi_server:main',
-            'mir_restapi_client = mir_restapi.mir_restapi_client:main',
-            'mir_restapi_client_test = mir_restapi.mir_restapi_client_test:main'
+            'mir_restapi_client = mir_restapi.mir_restapi_client:main'
         ],
     },
 )

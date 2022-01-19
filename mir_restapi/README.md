@@ -1,2 +1,3 @@
 # mir_restapi
-ROS action server that implements calls to the Mir REST API
+ROS server node and client node, that implements calls to the Mir REST API. Currently implemented:
+- set MiR's time
