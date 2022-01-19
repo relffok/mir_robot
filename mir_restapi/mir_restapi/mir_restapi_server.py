@@ -1,6 +1,7 @@
 from http.client import CannotSendRequest
 import time
 import sys
+import json
 
 import rclpy
 from rclpy.node import Node
@@ -83,20 +84,20 @@ class MirRestAPIServer(Node):
         
         # Request
         if self.api_handle.isConnected(print=False):
-            # this is needed, so that the connection timeout can be ignored
-            status = ""
-            while status == "":
-                try:
-                    status = self.api_handle.getStatus()
-                except CannotSendRequest:
-                    self.get_logger().info('REST API: Waiting for Restapi to restart...')
-                self.get_logger().info("status=")
-                self.get_logger().info(status)
-                time.sleep(1)
-
+            
             # produces an unavoidable connection timeout
-            # response.message = self.api_handle.setDateTime()
-                       
+            response.message = self.api_handle.setDateTime()
+
+            # this is needed, so that the connection timeout can be ignored
+            while True:
+                if self.api_handle.isConnected(print=False):
+                    status = json.dumps(self.api_handle.getStatus())
+                    if "service_unavailable" in status:
+                        self.get_logger().info('REST API: Waiting for Restapi to restart...')
+                    else:
+                        self.get_logger().info('REST API available again')
+                        break
+                    time.sleep(1)
             
             self.api_handle.close()
             
