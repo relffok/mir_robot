@@ -92,8 +92,8 @@ class MirRestAPIServer(Node):
                     status = self.api_handle.getStatus()
                 except CannotSendRequest:
                     self.get_logger().info('REST API: Waiting for Restapi to restart...')
-                print("status=")
-                print(status)
+                self.get_logger().info("status=")
+                self.get_logger().info(status)
                 time.sleep(1)
             
             self.api_handle.close()
