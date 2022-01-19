@@ -86,15 +86,15 @@ class MirRestAPIServer(Node):
             # produces an unavoidable connection timeout
             response.message = self.api_handle.setDateTime()
             # this is needed, so that the connection timeout can be ignored
-            status = ""
-            while status == "":
-                try:
-                    status = self.api_handle.getStatus()
-                except CannotSendRequest:
-                    self.get_logger().info('REST API: Waiting for Restapi to restart...')
-                self.get_logger().info("status=")
-                self.get_logger().info(status)
-                time.sleep(1)
+            # status = ""
+            # while status == "":
+            #     try:
+            #         status = self.api_handle.getStatus()
+            #     except CannotSendRequest:
+            #         self.get_logger().info('REST API: Waiting for Restapi to restart...')
+            #     self.get_logger().info("status=")
+            #     self.get_logger().info(status)
+            #     time.sleep(1)
             
             self.api_handle.close()
             
