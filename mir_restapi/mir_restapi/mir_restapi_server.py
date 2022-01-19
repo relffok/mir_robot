@@ -95,6 +95,7 @@ class MirRestAPIServer(Node):
                 response.success = False
             else:
                 response.success = True
+            return response
         else:
             response.success = False
             response.message = "ERROR: Couldn't connect to REST API"
