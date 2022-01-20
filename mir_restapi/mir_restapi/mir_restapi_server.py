@@ -1,7 +1,5 @@
-from http.client import CannotSendRequest
 import time
 import sys
-import json
 
 import rclpy
 from rclpy.node import Node

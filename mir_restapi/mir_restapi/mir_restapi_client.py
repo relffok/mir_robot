@@ -1,8 +1,6 @@
 import rclpy
 from rclpy.node import Node
 from std_srvs.srv import Trigger
-import time
-
 
 
 class MirRestAPIClient(Node):
