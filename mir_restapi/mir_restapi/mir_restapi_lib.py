@@ -2,7 +2,6 @@ import json
 import time
 import http.client
 from datetime import datetime
-import pytz
 
 class HttpConnection():
 
@@ -138,11 +137,7 @@ class MirRestAPI():
         return self.http.put("/setting", json.dumps({settingID: settingData}))
     
     def syncTime(self):
-        tz_str = "Europe/Berlin"
-        timezone = pytz.timezone(tz_str)
-        timeobj = datetime.now(timezone)
-        self.logger.info("REST API: Set Timezone to " + tz_str)
-
+        timeobj = datetime.now()
         dT = timeobj.strftime("%Y-%m-%dT%X")
         response = 'REST API: '
         try:
@@ -152,7 +147,7 @@ class MirRestAPI():
                 # setting datetime over REST API seems not to be intended
                 # that's why there is no response accompanying the PUT request,
                 # therefore a time out occurs, however time has been set correctly
-                response += "Set datetime to " + dT + " in timezone " + tz_str
+                response += "Set datetime to " + dT
                 self.logger.info("REST API: Setting time Mir triggers emergency stop, please unlock.")
                 self.logger.info(response)
                 
