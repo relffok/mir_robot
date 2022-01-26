@@ -80,6 +80,15 @@ def generate_launch_description():
             output='screen'),
 
         Node(
+            package='mir_restapi',
+            executable='mir_restapi_server',
+            parameters=[
+                {'mir_restapi_auth': LaunchConfiguration('mir_restapi_auth')},
+                {'mir_hostname': LaunchConfiguration('mir_hostname')}
+                ],
+            output='screen'),
+
+        Node(
             condition=IfCondition(LaunchConfiguration('rviz_enabled')),
             package='rviz2',
             executable='rviz2',
