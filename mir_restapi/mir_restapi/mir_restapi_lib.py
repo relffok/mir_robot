@@ -137,7 +137,7 @@ class MirRestAPI():
     def setSetting(self, settingID, settingData):
         return self.http.put("/setting", json.dumps({settingID: settingData}))
     
-    def setDateTime(self):
+    def syncTime(self):
         tz_str = "Europe/Berlin"
         timezone = pytz.timezone(tz_str)
         timeobj = datetime.now(timezone)

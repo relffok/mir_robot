@@ -43,13 +43,19 @@ class MirRestAPIServer(Node):
                 self.hostname = param.value
         self.setup_api_handle()
         return SetParametersResult(successful=True)
-        
+    
     def create_services(self):
         self.restAPI_setTime = self.create_service(
             Trigger,
-            'mir100_setTime',
-            self.api_setTime_callback)
-        self.get_logger().info("Listening on 'mir100_setTime' for timeset call!")
+            'mir_100_syncTime',
+            self.set_time_callback)
+        self.get_logger().info("Listening on 'mir_100_syncTime'")
+
+        self.restAPI_getStatus = self.create_service(
+            Trigger,
+            'mir_100_getStatus',
+            self.get_status_callback)
+        self.get_logger().info("Listening on 'mir_100_getStatus'")
     
     def test_api_connection(self):
         if self.api_handle == None:
@@ -72,20 +78,15 @@ class MirRestAPIServer(Node):
         response.message = 'API token and/or hostname not set yet'
         self.get_logger().error(response.message)
         return response
-
-    def api_setTime_callback(self, request, response):
-        self.get_logger().info('Attempting to setTime through REST API...')
-        
+    
+    def call_restapi_function(self, service_fct, request,response):
         if self.test_api_connection() == -1:
             response = self.reponse_api_handle_not_exists(response)
             return response
-        
         # Request
         if self.api_handle.isConnected(print=False):
-            
             # produces an unavoidable connection timeout
-            response.message = self.api_handle.setDateTime()
-            
+            response.message = str(service_fct())
             if "Error" in response.message:
                 response.success = False
             else:
@@ -95,6 +96,16 @@ class MirRestAPIServer(Node):
             response.success = False
             response.message = "ERROR: Couldn't connect to REST API"
         self.get_logger().error(response.message)
+        return response
+
+    def set_time_callback(self, request, response):
+        self.get_logger().info('Syncing host time with REST API...')
+        response = self.call_restapi_function(self.api_handle.syncTime, request, response)
+        return response
+
+    def get_status_callback(self, request, response):
+        self.get_logger().info('Getting status from REST API...')
+        response = self.call_restapi_function(self.api_handle.getStatus, request, response)
         return response
 
 

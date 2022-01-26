@@ -385,7 +385,7 @@ class MiR100BridgeNode(Node):
         # Connect to Mir REST API: set date time
         # call ROS action server here if needed
         restapi_client = MirRestAPIClient()
-        restapi_client.set_mir_time()
+        restapi_client.syncTime()
         
         
         # Connect to ROSbridge
