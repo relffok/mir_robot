@@ -66,7 +66,8 @@ def generate_launch_description():
 
     declare_rviz_config_arg = DeclareLaunchArgument(
         'rviz_config_file',
-        default_value=os.path.join(mir_description_dir, 'rviz', 'mir_visu_full.rviz'),
+        default_value=os.path.join(
+            mir_description_dir, 'rviz', 'mir_visu_full.rviz'),
         description='Define rviz config file to be used.')
 
     declare_gui_arg = DeclareLaunchArgument(
@@ -92,7 +93,8 @@ def generate_launch_description():
 
     launch_mir_gazebo_common = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            os.path.join(mir_gazebo_dir, 'launch', 'include', 'mir_gazebo_common.py')
+            os.path.join(mir_gazebo_dir, 'launch',
+                         'include', 'mir_gazebo_common.py')
         )
     )
 
@@ -101,7 +103,7 @@ def generate_launch_description():
         executable='spawn_entity.py',
         # TODO: check possibility of namespace as robot name
         arguments=['-entity', 'mir_robot', '-topic', 'robot_description'],
-        namespace = LaunchConfiguration('namespace'),
+        namespace=LaunchConfiguration('namespace'),
         # TODO: add spawning position
         output='screen')
 

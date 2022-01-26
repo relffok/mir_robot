@@ -12,9 +12,9 @@ class fake_mir_joint_publisher(Node):
         super().__init__('fake_mir_joint_publisher')
         prefix = self.declare_parameter('~prefix', '').value
         pub = self.create_publisher(
-                msg_type=JointState,
-                topic='joint_states',
-                qos_profile=qos_profile_system_default  # TODO Check QoS Settings
+            msg_type=JointState,
+            topic='joint_states',
+            qos_profile=qos_profile_system_default  # TODO Check QoS Settings
         )
 
         pub_rate = 1

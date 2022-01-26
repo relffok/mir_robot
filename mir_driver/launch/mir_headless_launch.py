@@ -39,7 +39,8 @@ def generate_launch_description():
 
         DeclareLaunchArgument(
             'rviz_config_file',
-            default_value=os.path.join(mir_description_dir, 'rviz', 'mir_visualization.rviz'),
+            default_value=os.path.join(
+                mir_description_dir, 'rviz', 'mir_visualization.rviz'),
             description='Define rviz config file to be used.'),
 
         DeclareLaunchArgument(
@@ -63,7 +64,8 @@ def generate_launch_description():
             launch_arguments={
                 'joint_state_publisher_enabled': 'false'
             }.items(),
-            condition=IfCondition(LaunchConfiguration('robot_state_publisher_enabled'))
+            condition=IfCondition(LaunchConfiguration(
+                'robot_state_publisher_enabled'))
         ),
 
         Node(
@@ -88,7 +90,8 @@ def generate_launch_description():
             arguments=['-d', rviz_config_file]),
 
         Node(
-            condition=IfCondition(LaunchConfiguration('twist_stamper_enabled')),
+            condition=IfCondition(
+                LaunchConfiguration('twist_stamper_enabled')),
             package='twist_stamper',
             executable='twist_stamper',
             name='twist_stamper_nav_cmd',
@@ -132,7 +135,8 @@ def generate_launch_description():
                          'cloud_destination_topic': 'scan_cloud',
                          'min_height': -0.25,
                          'max_merge_time_diff': 0.05,
-                         'max_delay_scan_time': 2.5,  # driver (msg converter) delay
+                         # driver (msg converter) delay
+                         'max_delay_scan_time': 2.5,
                          'max_completion_time': 0.1,
                          'alow_scan_delay': True,
                          'use_sim_time': use_sim_time,
