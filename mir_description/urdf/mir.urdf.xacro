@@ -9,8 +9,8 @@
 
   <xacro:arg name="tf_prefix" default="" />
 
+  <!-- prefix can not start with a slash like a global namespace! results in TF errors -->
   <xacro:property name="ns" value="$(arg tf_prefix)" />
-
   <xacro:if value="${ns == ''}">
     <xacro:property name="prefix" value="" />
   </xacro:if>

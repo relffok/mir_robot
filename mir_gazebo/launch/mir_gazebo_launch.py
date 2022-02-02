@@ -120,7 +120,9 @@ def generate_launch_description():
         package='rviz2',
         executable='rviz2',
         output={'both': 'log'},
-        arguments=['-d', rviz_config_file])
+        arguments=['-d', rviz_config_file],
+        parameters=[{'use_sim_time': LaunchConfiguration('use_sim_time')}]
+    )
 
     launch_teleop = Node(
         condition=IfCondition(LaunchConfiguration("teleop_enabled")),
