@@ -12,11 +12,11 @@ class MirRestAPIClient(Node):
     def create_api_clients(self):
         self.restAPI_setTime = self.create_client(
             Trigger,
-            'mir_100_syncTime')
+            'mir_100_sync_time')
         
         self.restAPI_getStatus = self.create_client(
             Trigger,
-            'mir_100_getStatus')
+            'mir_100_get_status')
     
     def call_trigger_service(self, client):
         req = Trigger.Request()
@@ -33,10 +33,10 @@ class MirRestAPIClient(Node):
             else:
                 self.get_logger().error(res.message)
 
-    def syncTime(self):
+    def sync_time(self):
         self.call_trigger_service(self.restAPI_setTime)
     
-    def getStatus(self):
+    def get_status(self):
         self.call_trigger_service(self.restAPI_getStatus)
 
 

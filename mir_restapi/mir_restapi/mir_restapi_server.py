@@ -47,15 +47,15 @@ class MirRestAPIServer(Node):
     def create_services(self):
         self.restAPI_setTime = self.create_service(
             Trigger,
-            'mir_100_syncTime',
+            'mir_100_sync_time',
             self.set_time_callback)
-        self.get_logger().info("Listening on 'mir_100_syncTime'")
+        self.get_logger().info("Listening on 'mir_100_sync_time'")
 
-        self.restAPI_getStatus = self.create_service(
+        self.restAPI_get_status = self.create_service(
             Trigger,
-            'mir_100_getStatus',
+            'mir_100_get_status',
             self.get_status_callback)
-        self.get_logger().info("Listening on 'mir_100_getStatus'")
+        self.get_logger().info("Listening on 'mir_100_get_status'")
     
     def test_api_connection(self):
         if self.api_handle == None:
@@ -63,7 +63,7 @@ class MirRestAPIServer(Node):
         
         self.get_logger().info('REST API: Waiting for connection')
         i = 1
-        while not self.api_handle.isConnected():
+        while not self.api_handle.is_connected():
             if not rclpy.ok():
                 sys.exit(0)
             if i > 5:
@@ -84,7 +84,7 @@ class MirRestAPIServer(Node):
             response = self.reponse_api_handle_not_exists(response)
             return response
         # Request
-        if self.api_handle.isConnected(print=False):
+        if self.api_handle.is_connected(print=False):
             # produces an unavoidable connection timeout
             response.message = str(service_fct())
             if "Error" in response.message:
@@ -100,12 +100,12 @@ class MirRestAPIServer(Node):
 
     def set_time_callback(self, request, response):
         self.get_logger().info('Syncing host time with REST API...')
-        response = self.call_restapi_function(self.api_handle.syncTime, request, response)
+        response = self.call_restapi_function(self.api_handle.sync_time, request, response)
         return response
 
     def get_status_callback(self, request, response):
         self.get_logger().info('Getting status from REST API...')
-        response = self.call_restapi_function(self.api_handle.getStatus, request, response)
+        response = self.call_restapi_function(self.api_handle.get_status, request, response)
         return response
 
 

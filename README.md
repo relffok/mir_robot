@@ -325,7 +325,7 @@ From the package `mir_restapi` a node called `mir_restapi_server` can be run, wh
         ros2 run mir_restapi mir_restapi_server --ros-args -p mir_hostname:='MIR_IP_ADDR' -p mir_restapi_auth:='YOUR_API_KEY'
 * Call the time sync service from terminal by invoking
         
-        ros2 service call /mir_100_syncTime std_srvs/Trigger
+        ros2 service call /mir_100_sync_time std_srvs/Trigger
 
 #### **After time sync**
 

@@ -19,14 +19,14 @@ class HttpConnection():
             self.logger.warn(str(e))
 
     def __del__(self):
-        if self.isValid():
+        if self.is_valid():
             self.connection.close()
 
-    def isValid(self):
+    def is_valid(self):
         return not self.connection is None
 
     def get(self, path):
-        if not self.isValid():
+        if not self.is_valid():
             self.connection.connect()
         self.connection.request("GET", self.api_prefix+path, headers = self.http_headers)
         resp = self.connection.getresponse() 
@@ -49,7 +49,7 @@ class HttpConnection():
             self.logger.warn("POST failed with status {} and reason: {}".format(resp.status, resp.reason))
         return json.loads(resp.read())
     
-    def putNoResponse(self, path, body):
+    def put_no_response(self, path, body):
         self.connection.request("PUT", self.api_prefix+path,body=body, headers=self.http_headers)        
 
 class MirRestAPI():
@@ -66,8 +66,8 @@ class MirRestAPI():
         self.http.__del__()
         self.logger.info("REST API: Connection closed")
 
-    def isConnected(self, print=True):
-        if not self.http.isValid():
+    def is_connected(self, print=True):
+        if not self.http.is_valid():
             self.logger.warn('REST API: Http-Connection is not valid')
             return False
         try:
@@ -81,46 +81,46 @@ class MirRestAPI():
             return False
         return True
 
-    def isAvailable(self):
-        status = json.dumps(self.getStatus())
+    def is_available(self):
+        status = json.dumps(self.get_status())
         if "service_unavailable" in status:
             return False
         else:
             return True
     
-    def waitForAvailable(self):
+    def wait_for_available(self):
         while True:
-            if self.isConnected(print=False):
-                if self.isAvailable():
+            if self.is_connected(print=False):
+                if self.is_available():
                     self.logger.info('REST API: available')
                     break
                 else:
                     self.logger.info('REST API: unavailable... waiting')
                     time.sleep(1)
 
-    def getStatus(self):
+    def get_status(self):
         response = self.http.get("/status")
         return json.loads(response.read())
     
-    def getStateId(self):
-        status = self.getStatus()
+    def get_state_id(self):
+        status = self.get_status()
         state_id = status["state_id"]
         return state_id
     
     """ Choices are: {3, 4, 11}, State: {Ready, Pause, Manualcontrol}
     """
-    def setStateId(self, stateId):
+    def set_state_id(self, stateId):
         return self.http.put("/status", json.dumps({'state_id': stateId}))
     
-    def isReady(self):
-        status = self.getStatus()
+    def is_ready(self):
+        status = self.get_status()
         if status["state_id"] != 3: # 3=Ready, 4=Pause, 11=Manualcontrol
             self.logger.warn("MIR currently occupied. System state: {}".format(status["state_text"]))
             return False
         else:
             return True
     
-    def getAllSettings(self, advanced=False, listGroups=False):
+    def get_all_settings(self, advanced=False, listGroups=False):
         if advanced:
             response = self.http.get("/settings/advanced")
         elif listGroups:
@@ -129,14 +129,14 @@ class MirRestAPI():
             response = self.http.get("/settings")
         return json.loads(response.read())
     
-    def getGroupSettings(self, groupID):
+    def get_group_settings(self, groupID):
         response = self.http.get("/setting_groups/" + groupID + "/settings")
         return json.loads(response.read())
     
-    def setSetting(self, settingID, settingData):
+    def set_setting(self, settingID, settingData):
         return self.http.put("/setting", json.dumps({settingID: settingData}))
     
-    def syncTime(self):
+    def sync_time(self):
         timeobj = datetime.now()
         dT = timeobj.strftime("%Y-%m-%dT%X")
         response = 'REST API: '
@@ -152,44 +152,43 @@ class MirRestAPI():
                 self.logger.info(response)
                 
                 # this is needed, because a timeset restarts the restAPI
-                self.waitForAvailable()
+                self.wait_for_available()
                 
                 return response
         response += " Error setting datetime"
         return response
-        
     
-    def getDistanceStatistics(self):
+    def get_distance_statistics(self):
         response = self.http.get("/statistics/distance")
         return json.loads(response.read())
 
-    def getPositions(self):
+    def get_positions(self):
         response = self.http.get("/positions")
         return json.loads(response.read())
 
-    def getPoseGuid(self, pos_name):
-        positions = self.getPositions()
+    def get_pose_guid(self, pos_name):
+        positions = self.get_positions()
         return next((pos["guid"] for pos in positions if pos["name"]==pos_name), None)
 
-    def getMissions(self):
+    def get_missions(self):
         response = self.http.get("/missions")
         return json.loads(response.read())
 
-    def getMissionGuid(self, mission_name):
-        missions = self.getMissions()
+    def get_mission_guid(self, mission_name):
+        missions = self.get_missions()
         return next((mis["guid"] for mis in missions if mis["name"]==mission_name), None)
 
-    def getSounds(self):
+    def get_sounds(self):
         response = self.http.get("/sounds")
         return json.loads(response.read())
 
-    def moveTo(self, position, mission="MoveTo"):
-        mis_guid = self.getMissionGuid(mission)
-        pos_guid = self.getPoseGuid(position)
+    def move_to(self, position, mission="move_to"):
+        mis_guid = self.get_mission_guid(mission)
+        pos_guid = self.get_pose_guid(position)
 
         for (var, txt, name) in zip((mis_guid, pos_guid),("Mission", "Position"),(mission, position)):
             if var is None:
-                self.logger.warn("No {} named {} available on MIR - Aborting MoveTo".format(txt,name))
+                self.logger.warn("No {} named {} available on MIR - Aborting move_to".format(txt,name))
                 return
 
         body = json.dumps({
