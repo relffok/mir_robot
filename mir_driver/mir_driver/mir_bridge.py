@@ -380,14 +380,7 @@ class MiR100BridgeNode(Node):
 
         global tf_prefix
         tf_prefix = self.declare_parameter('~tf_prefix', '').value.strip('/')
-
-
-        # Connect to Mir REST API: set date time
-        # call ROS action server here if needed
-        restapi_client = MirRestAPIClient()
-        restapi_client.syncTime()
-        
-        
+      
         # Connect to ROSbridge
         self.get_logger().info('Trying to connect to ROSbridge at %s:%i...' % (hostname, port))
         self.robot = mir_driver.rosbridge.RosbridgeSetup(hostname, port)
