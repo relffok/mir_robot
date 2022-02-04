@@ -36,6 +36,7 @@ class TopicConfig(object):
 def _odom_dict_filter(msg_dict,  to_ros2):
     filtered_msg_dict = copy.deepcopy(msg_dict)
     filtered_msg_dict['header'] = _convert_ros_header(filtered_msg_dict['header'], to_ros2)
+    filtered_msg_dict['child_frame_id'] = tf_prefix + filtered_msg_dict['child_frame_id'].strip('/')
     return filtered_msg_dict
 
 
@@ -82,7 +83,7 @@ def _convert_ros_header(header_msg_dict, to_ros2):
     header_dict['stamp'] = _convert_ros_time(header_dict['stamp'], to_ros2)
     if to_ros2:
         del header_dict['seq']
-        frame_id = header_dict['frame_id'].strip('/') 
+        frame_id = header_dict['frame_id'].strip('/')
         header_dict['frame_id'] = tf_prefix + frame_id
     else:  # to ros1
         header_dict['seq'] = 0
@@ -269,7 +270,7 @@ PUB_TOPICS = [
     # TopicConfig('scan_filter/visualization_marker', visualization_msgs.msg.Marker),
     # TopicConfig('session_importer_node/info', mirSessionImporter.msg.SessionImportInfo),
     # TopicConfig('set_mc_PID', std_msgs.msg.Float64MultiArray),
-    TopicConfig('tf', TFMessage, dict_filter=_tf_dict_filter),
+    TopicConfig('tf', TFMessage, dict_filter=_tf_dict_filter, topic_renamed='/tf'), #let /tf be /tf if namespaced
     # TopicConfig('/tf_static', tf2_msgs.msg.TFMessage, dict_filter=_tf_static_dict_filter, latch=True),
     # TopicConfig('traffic_map', nav_msgs.msg.OccupancyGrid),
     # TopicConfig('wifi_diagnostics', diagnostic_msgs.msg.DiagnosticArray),
@@ -305,12 +306,12 @@ class PublisherWrapper(object):
         )
         self.pub = nh.create_publisher(
             msg_type=topic_config.topic_type,
-            topic=topic_config.topic,
+            topic=topic_config.topic_ros2_name,
             qos_profile=topic_config.qos_profile
         )
 
         nh.get_logger().info("Publishing topic '%s' [%s]" %
-                             (topic_config.topic, topic_config.topic_type.__module__))
+                             (topic_config.topic_ros2_name, topic_config.topic_type.__module__))
         # latched topics must be subscribed immediately
         # if topic_config.latch:
         self.peer_subscribe(None, None, None, nh)
