@@ -23,22 +23,30 @@ class MirRestAPIServer(Node):
         self.add_on_set_parameters_callback(self.parameters_callback)
 
         self.api_handle = None
+        
         self.setup_api_handle()
-
-        self.create_services()
+        
+        if self.api_handle == None:
+            self.get_logger().warn("""
+            Hostname and API token are not set! Run as follows: 
+            
+            ros2 run mir_restapi mir_restapi_server --ros-args -p mir_hostname:='MIR_IP_ADDR' -p mir_restapi_auth:='YOUR_API_KEY'
+            """)
     
     def setup_api_handle(self):
-        if self.hostname != "" and self.auth != "" and self.api_handle == None:
+        if self.hostname != "" and self.auth != "":
             self.api_handle = mir_restapi.mir_restapi_lib.MirRestAPI(
                 self.get_logger(), self.hostname, self.auth)
             self.get_logger().info("created MirRestAPI handle")
+            self.create_services()
+            self.get_logger().info("created services")
     
     def parameters_callback(self, params):
         for param in params:
             if param.name == "mir_restapi_auth":
                 self.get_logger().info("Received auth token")
                 self.auth = param.value
-            if param.name == "mir_restapi_auth":
+            if param.name == "mir_hostname":
                 self.get_logger().info("Set mir hostname")
                 self.hostname = param.value
         self.setup_api_handle()
@@ -79,7 +87,7 @@ class MirRestAPIServer(Node):
         self.get_logger().error(response.message)
         return response
     
-    def call_restapi_function(self, service_fct, request,response):
+    def call_restapi_function(self, service_fct, request, response):
         if self.test_api_connection() == -1:
             response = self.reponse_api_handle_not_exists(response)
             return response
