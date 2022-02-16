@@ -64,8 +64,7 @@ def generate_launch_description():
             package='mir_driver',
             executable='fake_mir_joint_publisher',
             remappings=[('use_sim_time', LaunchConfiguration('use_sim_time'))],
-            parameters=[{'rviz_enabled': 'false'},
-                        {'tf_prefix': LaunchConfiguration('namespace')}],
+            parameters=[{'tf_prefix': LaunchConfiguration('namespace')}],
             namespace=LaunchConfiguration('namespace'),
             output='screen'),
 
