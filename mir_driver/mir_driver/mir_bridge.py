@@ -21,7 +21,7 @@ from std_srvs.srv import Trigger
 tf_prefix = ''
 
 class TopicConfig(object):
-    def __init__(self, topic, topic_type, topic_renamed=None, latch=False, dict_filter=None):
+    def __init__(self, topic, topic_type, topic_renamed=None, latch=False, dict_filter=None, qos_profile=None):
         self.topic = topic
         if (topic_renamed):
             self.topic_ros2_name = topic_renamed
@@ -30,7 +30,10 @@ class TopicConfig(object):
         self.topic_type = topic_type
         self.latch = latch
         self.dict_filter = dict_filter
-        self.qos_profile = qos_profile_system_default
+        if qos_profile is not None:
+            self.qos_profile = qos_profile
+        else:
+            self.qos_profile = qos_profile_system_default
 
 
 def _odom_dict_filter(msg_dict,  to_ros2):
@@ -158,7 +161,7 @@ PUB_TOPICS = [
     # TopicConfig('active_mapping_guid', std_msgs.msg.String),
     # TopicConfig('amcl_pose', geometry_msgs.msg.PoseWithCovarianceStamped),
     # TopicConfig('b_raw_scan', sensor_msgs.msg.LaserScan),
-    TopicConfig('b_scan', LaserScan, dict_filter=_laser_scan_filter),
+    TopicConfig('b_scan', LaserScan, dict_filter=_laser_scan_filter, qos_profile=qos_profile_sensor_data),
     # TopicConfig('camera_floor/background', sensor_msgs.msg.PointCloud2),
     # TopicConfig('camera_floor/depth/parameter_descriptions', dynamic_reconfigure.msg.ConfigDescription),
     # TopicConfig('camera_floor/depth/parameter_updates', dynamic_reconfigure.msg.Config),
@@ -177,7 +180,7 @@ PUB_TOPICS = [
     # TopicConfig('diagnostics_agg', diagnostic_msgs.msg.DiagnosticArray),
     # TopicConfig('diagnostics_toplevel_state', diagnostic_msgs.msg.DiagnosticStatus),
     # TopicConfig('f_raw_scan', sensor_msgs.msg.LaserScan),
-    TopicConfig('f_scan', LaserScan, dict_filter=_laser_scan_filter),
+    TopicConfig('f_scan', LaserScan, dict_filter=_laser_scan_filter, qos_profile=qos_profile_sensor_data),
     # TopicConfig('imu_data', sensor_msgs.msg.Imu),
     # TopicConfig('laser_back/driver/parameter_descriptions', dynamic_reconfigure.msg.ConfigDescription),
     # TopicConfig('laser_back/driver/parameter_updates', dynamic_reconfigure.msg.Config),
