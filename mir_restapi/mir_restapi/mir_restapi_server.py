@@ -53,41 +53,53 @@ class MirRestAPIServer(Node):
         return SetParametersResult(successful=True)
     
     def create_services(self):
-        self.restAPI_setTime = self.create_service(
+        self.create_service(
             Trigger,
             'mir_100_sync_time',
             self.sync_time_callback)
         self.get_logger().info("Listening on 'mir_100_sync_time'")
 
-        self.restAPI_get_status = self.create_service(
+        self.create_service(
             Trigger,
             'mir_100_get_status',
             self.get_status_callback)
         self.get_logger().info("Listening on 'mir_100_get_status'")
 
-        self.restAPI_get_sounds = self.create_service(
+        self.create_service(
             Trigger,
             'mir_100_get_sounds',
             self.get_sounds_callback)
         self.get_logger().info("Listening on 'mir_100_get_sounds'")
 
-        self.restAPI_is_emergency_halt = self.create_service(
+        self.create_service(
             Trigger,
             'mir_100_is_emergency_halt',
             self.is_emergency_halt_callback)
         self.get_logger().info("Listening on 'mir_100_is_emergency_halt'")
 
-        self.restAPI_get_missions = self.create_service(
+        self.create_service(
             Trigger,
             'mir_100_get_missions',
             self.get_missions_callback)
         self.get_logger().info("Listening on 'mir_100_get_missions'")
 
-        self.restAPI_honk = self.create_service(
+        self.create_service(
             Trigger,
             'mir_100_honk',
-            self.honk)
+            self.honk_callback)
         self.get_logger().info("Listening on 'mir_100_honk'")
+
+        self.create_service(
+            Trigger,
+            'mir_100_get_system_info',
+            self.get_system_info_callback)
+        self.get_logger().info("Listening on 'mir_100_get_system_info'")
+
+        self.create_service(
+            Trigger,
+            'mir_100_get_settings',
+            self.get_settings_callback)
+        self.get_logger().info("Listening on 'mir_100_get_settings'")
     
     def test_api_connection(self):
         if self.api_handle == None:
@@ -167,7 +179,7 @@ class MirRestAPIServer(Node):
         response = self.call_restapi_function(self.api_handle.get_missions, request, response)
         return response
     
-    def honk(self, request, response):
+    def honk_callback(self, request, response):
         self.get_logger().info('Honking horn over REST API...')
 
         mission_name = "honk"
@@ -199,6 +211,16 @@ class MirRestAPIServer(Node):
             self.api_handle.set_state_id(STATE_ID_PAUSE)
             self.api_handle.http.__del__()
             response.success = True
+        return response
+    
+    def get_system_info_callback(self, request, response):
+        self.get_logger().info('Getting system info from REST API...')
+        response = self.call_restapi_function(self.api_handle.get_system_info, request, response)
+        return response
+
+    def get_settings_callback(self, request, response):
+        self.get_logger().info('Getting settings from REST API...')
+        response = self.call_restapi_function(self.api_handle.get_all_settings, request, response)
         return response
 
 

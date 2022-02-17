@@ -260,3 +260,7 @@ class MirRestAPI():
         self.logger.info("Mission with queue_id {} is still in queue".format(mission_queue_id))
         return False
     
+    def get_system_info(self):
+        response = self.http.get("/system/info")
+        return json.loads(response.read())
+    
