@@ -9,6 +9,8 @@ class MirRestAPIClient(Node):
         super().__init__('mir_restapi_client_sync_time')
         self.create_api_clients()
 
+        self.restAPI_setTime.wait_for_service()
+
         self.sync_time()
         rclpy.shutdown()
         exit()
