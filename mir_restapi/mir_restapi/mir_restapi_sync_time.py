@@ -6,8 +6,12 @@ from std_srvs.srv import Trigger
 class MirRestAPIClient(Node):
 
     def __init__(self):
-        super().__init__('mir_restapi_client')
-        self.create_api_clients()        
+        super().__init__('mir_restapi_client_sync_time')
+        self.create_api_clients()
+
+        self.sync_time()
+        rclpy.shutdown()
+        exit()
 
     def create_api_clients(self):
         self.restAPI_setTime = self.create_client(
@@ -46,8 +50,6 @@ def main(args=None):
 
     rest_api_client = MirRestAPIClient()
 
-    rclpy.spin(rest_api_client)
-    rclpy.shutdown()
 
 
 if __name__ == '__main__':
