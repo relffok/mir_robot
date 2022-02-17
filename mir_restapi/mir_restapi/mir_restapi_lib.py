@@ -217,7 +217,7 @@ class MirRestAPI():
         mis_guid = self.get_mission_guid(mission_name)
         if mis_guid == None:
             self.logger.warn("No Mission named '{}' available on MIR - Aborting move_to".format(mission_name))
-            return False
+            return False, -1
 
         # put in mission queue
         body = json.dumps(
@@ -231,42 +231,32 @@ class MirRestAPI():
         data = self.http.post("/mission_queue", body)
         try:
             self.logger.info("Mission scheduled for execution under id {}".format(data["id"]))
-            return True
+            return True, int(data["id"])
         except KeyError:
             self.logger.warn("Couldn't schedule mission")
             self.logger.warn(str(data))
+        return False, -1
+    
+    def is_mission_done(self, mission_queue_id):
+        try:
+            # mis_guid = self.get_mission_guid(mission_name)
+            response = self.http.get("/mission_queue")
+            
+        except http.client.ResponseNotReady or http.client.CannotSendRequest:
+            self.logger.info("Http error: Mission with queue_id {} is still in queue".format(mission_queue_id))
+            self.http.__del__()
+            return False
+
+        # self.logger.info("Mission with queue_id {} is in queue".format(mission_queue_id))
+        # self.logger.info("Response status {}".format(response.status))
+        data = json.loads(response.read())
+        
+        for d in data:
+            if d["id"]==mission_queue_id:
+                if d["state"] == 'Done':
+                    self.logger.info("Mission {} is done".format(mission_queue_id))
+                    return True
+        
+        self.logger.info("Mission with queue_id {} is still in queue".format(mission_queue_id))
         return False
     
-    def is_mission_in_queue(self, mission_name):
-        try:
-            mis_guid = self.get_mission_guid(mission_name)
-            response = self.http.get("/mission_queue/{}".format(mis_guid))
-        except http.client.ResponseNotReady or http.client.CannotSendRequest:
-            self.logger.info("Http error: Mission {} is still in queue".format(mission_name))
-            self.http.__del__()
-            return True
-        
-        data = json.loads(response.read())
-        self.logger.info("data")
-
-        if response.status == 404:
-            self.logger.info("Mission {} is done".format(mission_name))
-            return False
-        self.logger.info("Mission {} is still in queue".format(mission_name))
-        return True
-    
-    def is_mission_queue_empty(self):
-        try:
-            response = self.http.get("/mission_queue")
-            data = json.loads(response.read())
-            self.logger.info(data)
-        except http.client.ResponseNotReady or http.client.CannotSendRequest:
-            self.logger.info("Http error")
-            self.http.__del__()
-            return False
-
-        # if response.status == 404:
-        #     self.logger.info("Mission {} is done".format(mission_name))
-        #     return False
-        # self.logger.info("Mission {} is still in queue".format(mission_name))
-        return True

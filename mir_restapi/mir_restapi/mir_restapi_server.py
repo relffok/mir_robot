@@ -152,12 +152,14 @@ class MirRestAPIServer(Node):
         
         if response.success:
             state_id = int(response.message)
-            self.get_logger().info("Returned state_id as %i" % state_id)
+            #self.get_logger().info("Returned state_id as %i" % state_id)
             STATE_ID_EMERGENCY = 10
             if state_id == STATE_ID_EMERGENCY:
                 response.message = str(True)
+                self.get_logger().info("Emergency Halt")
             else:
                 response.message = str(False)
+                # self.get_logger().info("no emergency halt")
         return response
     
     def get_missions_callback(self, request, response):
@@ -170,12 +172,13 @@ class MirRestAPIServer(Node):
 
         mission_name = "honk"
 
-        response_miss_queue = self.call_restapi_function(self.api_handle.add_mission_to_queue, request, response, args=mission_name)
-        if response_miss_queue.message == str(False):
+        queue_success, mission_queue_id = self.api_handle.add_mission_to_queue(mission_name)
+        if not queue_success:
             response.message = "Honking failed due to mission queue error"
             self.get_logger().error(response.message)
             response.success = False
             return response
+        self.get_logger().info("Put honk mission into queue with mission_queue_id={}".format(mission_queue_id))
         
         emerg_response = self.is_emergency_halt_callback(request, response)
         if emerg_response.message == str(True):
@@ -190,10 +193,11 @@ class MirRestAPIServer(Node):
             
             self.api_handle.set_state_id(STATE_ID_RUN_MISSION)
             
-            # while self.api_handle.is_mission_queue_empty():
-            time.sleep(5)
+            while not self.api_handle.is_mission_done(mission_queue_id):
+                time.sleep(1)
             
             self.api_handle.set_state_id(STATE_ID_PAUSE)
+            self.api_handle.http.__del__()
             response.success = True
         return response
 
