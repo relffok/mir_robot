@@ -212,3 +212,61 @@ class MirRestAPI():
             time.sleep(2)
 
         self.logger.info("Mission executed successfully")
+    
+    def add_mission_to_queue(self, mission_name):
+        mis_guid = self.get_mission_guid(mission_name)
+        if mis_guid == None:
+            self.logger.warn("No Mission named '{}' available on MIR - Aborting move_to".format(mission_name))
+            return False
+
+        # put in mission queue
+        body = json.dumps(
+            {
+            "mission_id": str(mis_guid),
+            "message": "Mission scheduled by ROS node mir_restapi_server",
+            "priority": 0
+            }
+        )
+
+        data = self.http.post("/mission_queue", body)
+        try:
+            self.logger.info("Mission scheduled for execution under id {}".format(data["id"]))
+            return True
+        except KeyError:
+            self.logger.warn("Couldn't schedule mission")
+            self.logger.warn(str(data))
+        return False
+    
+    def is_mission_in_queue(self, mission_name):
+        try:
+            mis_guid = self.get_mission_guid(mission_name)
+            response = self.http.get("/mission_queue/{}".format(mis_guid))
+        except http.client.ResponseNotReady or http.client.CannotSendRequest:
+            self.logger.info("Http error: Mission {} is still in queue".format(mission_name))
+            self.http.__del__()
+            return True
+        
+        data = json.loads(response.read())
+        self.logger.info("data")
+
+        if response.status == 404:
+            self.logger.info("Mission {} is done".format(mission_name))
+            return False
+        self.logger.info("Mission {} is still in queue".format(mission_name))
+        return True
+    
+    def is_mission_queue_empty(self):
+        try:
+            response = self.http.get("/mission_queue")
+            data = json.loads(response.read())
+            self.logger.info(data)
+        except http.client.ResponseNotReady or http.client.CannotSendRequest:
+            self.logger.info("Http error")
+            self.http.__del__()
+            return False
+
+        # if response.status == 404:
+        #     self.logger.info("Mission {} is done".format(mission_name))
+        #     return False
+        # self.logger.info("Mission {} is still in queue".format(mission_name))
+        return True

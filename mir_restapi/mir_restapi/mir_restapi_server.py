@@ -56,7 +56,7 @@ class MirRestAPIServer(Node):
         self.restAPI_setTime = self.create_service(
             Trigger,
             'mir_100_sync_time',
-            self.set_time_callback)
+            self.sync_time_callback)
         self.get_logger().info("Listening on 'mir_100_sync_time'")
 
         self.restAPI_get_status = self.create_service(
@@ -64,6 +64,30 @@ class MirRestAPIServer(Node):
             'mir_100_get_status',
             self.get_status_callback)
         self.get_logger().info("Listening on 'mir_100_get_status'")
+
+        self.restAPI_get_sounds = self.create_service(
+            Trigger,
+            'mir_100_get_sounds',
+            self.get_sounds_callback)
+        self.get_logger().info("Listening on 'mir_100_get_sounds'")
+
+        self.restAPI_is_emergency_halt = self.create_service(
+            Trigger,
+            'mir_100_is_emergency_halt',
+            self.is_emergency_halt_callback)
+        self.get_logger().info("Listening on 'mir_100_is_emergency_halt'")
+
+        self.restAPI_get_missions = self.create_service(
+            Trigger,
+            'mir_100_get_missions',
+            self.get_missions_callback)
+        self.get_logger().info("Listening on 'mir_100_get_missions'")
+
+        self.restAPI_honk = self.create_service(
+            Trigger,
+            'mir_100_honk',
+            self.honk)
+        self.get_logger().info("Listening on 'mir_100_honk'")
     
     def test_api_connection(self):
         if self.api_handle == None:
@@ -87,14 +111,15 @@ class MirRestAPIServer(Node):
         self.get_logger().error(response.message)
         return response
     
-    def call_restapi_function(self, service_fct, request, response):
+    def call_restapi_function(self, service_fct, request, response, args=None):
         if self.test_api_connection() == -1:
             response = self.reponse_api_handle_not_exists(response)
             return response
-        # Request
         if self.api_handle.is_connected(print=False):
-            # produces an unavoidable connection timeout
-            response.message = str(service_fct())
+            if args==None:
+                response.message = str(service_fct())
+            else:
+                response.message = str(service_fct(args))
             if "Error" in response.message:
                 response.success = False
             else:
@@ -106,7 +131,7 @@ class MirRestAPIServer(Node):
         self.get_logger().error(response.message)
         return response
 
-    def set_time_callback(self, request, response):
+    def sync_time_callback(self, request, response):
         self.get_logger().info('Syncing host time with REST API...')
         response = self.call_restapi_function(self.api_handle.sync_time, request, response)
         return response
@@ -114,6 +139,62 @@ class MirRestAPIServer(Node):
     def get_status_callback(self, request, response):
         self.get_logger().info('Getting status from REST API...')
         response = self.call_restapi_function(self.api_handle.get_status, request, response)
+        return response
+    
+    def get_sounds_callback(self, request, response):
+        self.get_logger().info('Getting sounds from REST API...')
+        response = self.call_restapi_function(self.api_handle.get_sounds, request, response)
+        return response
+    
+    def is_emergency_halt_callback(self, request, response):
+        self.get_logger().info('Checking REST API for emergency halt...')
+        response = self.call_restapi_function(self.api_handle.get_state_id, request, response)
+        
+        if response.success:
+            state_id = int(response.message)
+            self.get_logger().info("Returned state_id as %i" % state_id)
+            STATE_ID_EMERGENCY = 10
+            if state_id == STATE_ID_EMERGENCY:
+                response.message = str(True)
+            else:
+                response.message = str(False)
+        return response
+    
+    def get_missions_callback(self, request, response):
+        self.get_logger().info('Getting missions from REST API...')
+        response = self.call_restapi_function(self.api_handle.get_missions, request, response)
+        return response
+    
+    def honk(self, request, response):
+        self.get_logger().info('Honking horn over REST API...')
+
+        mission_name = "honk"
+
+        response_miss_queue = self.call_restapi_function(self.api_handle.add_mission_to_queue, request, response, args=mission_name)
+        if response_miss_queue.message == str(False):
+            response.message = "Honking failed due to mission queue error"
+            self.get_logger().error(response.message)
+            response.success = False
+            return response
+        
+        emerg_response = self.is_emergency_halt_callback(request, response)
+        if emerg_response.message == str(True):
+            response.message = "Can't honk, emergency halt"
+            self.get_logger().error(response.message)
+            response.success = False
+        else:
+            response.message = "Honking"
+            self.get_logger().info(response.message)
+            STATE_ID_RUN_MISSION = 3
+            STATE_ID_PAUSE = 4
+            
+            self.api_handle.set_state_id(STATE_ID_RUN_MISSION)
+            
+            # while self.api_handle.is_mission_queue_empty():
+            time.sleep(5)
+            
+            self.api_handle.set_state_id(STATE_ID_PAUSE)
+            response.success = True
         return response
 
 
