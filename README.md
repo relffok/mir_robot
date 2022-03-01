@@ -4,14 +4,11 @@
 It is currently still under heavy development - to be used with caution!**
 The following packages have been migrated to galactic:
 
-- [ ] mir_actions
 - [x] mir_description
 - [x] mir_driver
-- [ ] mir_dwb_critics
 - [x] mir_gazebo
 - [x] mir_msgs
 - [x] mir_navigation
-- [ ] sdc21x0
 
 mir_driver
 ==========
@@ -467,6 +464,14 @@ Initialize Pose | Drifted pose | Refined pose
 ![](doc/img/initial_pose1.png) |![](doc/img/initial_pose2.png)|![](doc/img/initial_pose3.png)
 
 
+Using a namespace
+------------------------------------
+
+When using a namespace for your robot, add the ``--ros-args -p namespace:=my_namespace`` to the launch files.
+The driver, description and gazebo packages work out of the box. 
+However, to use the navigation stack the corresponding config.yaml files need to be adapted to match the renamed topic.
+
+The navigation ``cmd_vel`` topic is automatically remapped by adding the namespace in the ``navigation.py`` launch file.
 
 <!--
   
@@ -482,7 +487,7 @@ status `SUCCEEDED` arrives before the corresponding result message, this
 warning will be printed. It can be safely ignored. -->
 
 
-Travis - Continuous Integration
+<!-- Travis - Continuous Integration
 -------------------------------
 
 | Melodic                                                                                                                  | Noetic                                                                                                                  |
@@ -507,4 +512,4 @@ ROS Buildfarm
 
 |                                            | Melodic devel                                                                                                                                                    | Melodic doc                                                                                                                                                      | Noetic devel                                                                                                                                                   | Noetic doc                                                                                                                                                     |
 |--------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| [mir_robot](http://wiki.ros.org/mir_robot) | [![Build Status](http://build.ros.org/buildStatus/icon?job=Mdev__mir_robot__ubuntu_bionic_amd64)](http://build.ros.org/job/Mdev__mir_robot__ubuntu_bionic_amd64) | [![Build Status](http://build.ros.org/buildStatus/icon?job=Mdoc__mir_robot__ubuntu_bionic_amd64)](http://build.ros.org/job/Mdoc__mir_robot__ubuntu_bionic_amd64) | [![Build Status](http://build.ros.org/buildStatus/icon?job=Ndev__mir_robot__ubuntu_focal_amd64)](http://build.ros.org/job/Ndev__mir_robot__ubuntu_focal_amd64) | [![Build Status](http://build.ros.org/buildStatus/icon?job=Ndoc__mir_robot__ubuntu_focal_amd64)](http://build.ros.org/job/Ndoc__mir_robot__ubuntu_focal_amd64) |
+| [mir_robot](http://wiki.ros.org/mir_robot) | [![Build Status](http://build.ros.org/buildStatus/icon?job=Mdev__mir_robot__ubuntu_bionic_amd64)](http://build.ros.org/job/Mdev__mir_robot__ubuntu_bionic_amd64) | [![Build Status](http://build.ros.org/buildStatus/icon?job=Mdoc__mir_robot__ubuntu_bionic_amd64)](http://build.ros.org/job/Mdoc__mir_robot__ubuntu_bionic_amd64) | [![Build Status](http://build.ros.org/buildStatus/icon?job=Ndev__mir_robot__ubuntu_focal_amd64)](http://build.ros.org/job/Ndev__mir_robot__ubuntu_focal_amd64) | [![Build Status](http://build.ros.org/buildStatus/icon?job=Ndoc__mir_robot__ubuntu_focal_amd64)](http://build.ros.org/job/Ndoc__mir_robot__ubuntu_focal_amd64) | -->
