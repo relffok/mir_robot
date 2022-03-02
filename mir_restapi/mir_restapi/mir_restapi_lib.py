@@ -111,7 +111,6 @@ class MirRestAPI():
         status = self.get_status()
         state_id = status["state_id"]
         return state_id
-
     """ Choices are: {3, 4, 11}, State: {Ready, Pause, Manualcontrol}
     """
     def set_state_id(self, stateId):
