@@ -148,7 +148,7 @@ class MirRestAPI():
                 # that's why there is no response accompanying the PUT request,
                 # therefore a time out occurs, however time has been set correctly
                 response += "Set datetime to " + dT
-                self.logger.info("REST API: Setting time Mir triggers emergency stop, please unlock.")
+                self.logger.warn("REST API: Setting time Mir triggers emergency stop, please unlock.")
                 self.logger.info(response)
                 
                 # this is needed, because a timeset restarts the restAPI
