@@ -9,9 +9,9 @@ class HttpConnection():
         self.logger = logger
         self.api_prefix = api_prefix
         self.http_headers = {
-            "Accept-Language":"en-EN", 
-            "Authorization":auth,
-            "Content-Type":"application/json"}
+            "Accept-Language": "en-EN",
+            "Authorization": auth,
+            "Content-Type": "application/json"}
         try:
             self.connection = http.client.HTTPConnection(host=address, timeout=5)
         except Exception as e:
@@ -23,38 +23,42 @@ class HttpConnection():
             self.connection.close()
 
     def is_valid(self):
-        return not self.connection is None
+        return self.connection is not None
 
     def get(self, path):
         if not self.is_valid():
             self.connection.connect()
-        self.connection.request("GET", self.api_prefix+path, headers = self.http_headers)
-        resp = self.connection.getresponse() 
-        if resp.status <200 or resp.status>=300:
-            self.logger.warn("GET failed with status {} and reason: {}".format(resp.status, resp.reason))
+        self.connection.request("GET", self.api_prefix+path, headers=self.http_headers)
+        resp = self.connection.getresponse()
+        if resp.status < 200 or resp.status >= 300:
+            self.logger.warn("GET failed with status {} and reason: {}".format(resp.status,
+                             resp.reason))
         return resp
 
     def post(self, path, body):
-        self.connection.request("POST", self.api_prefix+path,body=body, headers=self.http_headers)
+        self.connection.request("POST", self.api_prefix+path, body=body, headers=self.http_headers)
         resp = self.connection.getresponse()
-        if resp.status <200 or resp.status>=300:
-            self.logger.warn("POST failed with status {} and reason: {}".format(resp.status, resp.reason))
+        if resp.status < 200 or resp.status >= 300:
+            self.logger.warn("POST failed with status {} and reason: {}".format(
+                resp.status, resp.reason))
         return json.loads(resp.read())
 
     def put(self, path, body):
-        self.connection.request("PUT", self.api_prefix+path,body=body, headers=self.http_headers)
+        self.connection.request("PUT", self.api_prefix+path, body=body, headers=self.http_headers)
         resp = self.connection.getresponse()
-        #self.logger.info(resp.read())
-        if resp.status <200 or resp.status>=300:
-            self.logger.warn("POST failed with status {} and reason: {}".format(resp.status, resp.reason))
+        # self.logger.info(resp.read())
+        if resp.status < 200 or resp.status >= 300:
+            self.logger.warn("POST failed with status {} and reason: {}".format(
+                resp.status, resp.reason))
         return json.loads(resp.read())
-    
+
     def put_no_response(self, path, body):
-        self.connection.request("PUT", self.api_prefix+path,body=body, headers=self.http_headers)        
+        self.connection.request("PUT", self.api_prefix+path, body=body, headers=self.http_headers)
+
 
 class MirRestAPI():
 
-    def __init__(self, logger, hostname, auth = ""):
+    def __init__(self, logger, hostname, auth=""):
         self.logger = logger
         if hostname is not None:
             address = hostname + ":80"
@@ -87,7 +91,7 @@ class MirRestAPI():
             return False
         else:
             return True
-    
+            
     def wait_for_available(self):
         while True:
             if self.is_connected(print=False):
@@ -101,25 +105,26 @@ class MirRestAPI():
     def get_status(self):
         response = self.http.get("/status")
         return json.loads(response.read())
-    
+
     def get_state_id(self):
         status = self.get_status()
         state_id = status["state_id"]
         return state_id
-    
+        
     """ Choices are: {3, 4, 11}, State: {Ready, Pause, Manualcontrol}
     """
     def set_state_id(self, stateId):
         return self.http.put("/status", json.dumps({'state_id': stateId}))
-    
+
     def is_ready(self):
         status = self.get_status()
-        if status["state_id"] != 3: # 3=Ready, 4=Pause, 11=Manualcontrol
-            self.logger.warn("MIR currently occupied. System state: {}".format(status["state_text"]))
+        if status["state_id"] != 3:  # 3=Ready, 4=Pause, 11=Manualcontrol
+            self.logger.warn("MIR currently occupied. System state: {}".format(
+                status["state_text"]))
             return False
         else:
             return True
-    
+
     def get_all_settings(self, advanced=False, listGroups=False):
         if advanced:
             response = self.http.get("/settings/advanced")
@@ -128,14 +133,14 @@ class MirRestAPI():
         else:
             response = self.http.get("/settings")
         return json.loads(response.read())
-    
+
     def get_group_settings(self, groupID):
         response = self.http.get("/setting_groups/" + groupID + "/settings")
         return json.loads(response.read())
-    
+
     def set_setting(self, settingID, settingData):
         return self.http.put("/setting", json.dumps({settingID: settingData}))
-    
+
     def sync_time(self):
         timeobj = datetime.now()
         dT = timeobj.strftime("%Y-%m-%dT%X")
@@ -186,9 +191,11 @@ class MirRestAPI():
         mis_guid = self.get_mission_guid(mission)
         pos_guid = self.get_pose_guid(position)
 
-        for (var, txt, name) in zip((mis_guid, pos_guid),("Mission", "Position"),(mission, position)):
+        for (var, txt, name) in zip((mis_guid, pos_guid), ("Mission", "Position"),
+                                    (mission, position)):
             if var is None:
-                self.logger.warn("No {} named {} available on MIR - Aborting move_to".format(txt,name))
+                self.logger.warn(
+                    "No {} named {} available on MIR - Aborting move_to".format(txt, name))
                 return
 
         body = json.dumps({
@@ -212,21 +219,18 @@ class MirRestAPI():
             time.sleep(2)
 
         self.logger.info("Mission executed successfully")
-    
+
     def add_mission_to_queue(self, mission_name):
         mis_guid = self.get_mission_guid(mission_name)
-        if mis_guid == None:
-            self.logger.warn("No Mission named '{}' available on MIR - Aborting move_to".format(mission_name))
+        if mis_guid is None:
+            self.logger.warn(
+                "No Mission named '{}' available on MIR - Aborting move_to".format(mission_name))
             return False, -1
 
         # put in mission queue
-        body = json.dumps(
-            {
-            "mission_id": str(mis_guid),
-            "message": "Mission scheduled by ROS node mir_restapi_server",
-            "priority": 0
-            }
-        )
+        body = json.dumps({"mission_id": str(mis_guid),
+                           "message": "Mission scheduled by ROS node mir_restapi_server",
+                           "priority": 0})
 
         data = self.http.post("/mission_queue", body)
         try:
@@ -236,31 +240,31 @@ class MirRestAPI():
             self.logger.warn("Couldn't schedule mission")
             self.logger.warn(str(data))
         return False, -1
-    
+        
     def is_mission_done(self, mission_queue_id):
         try:
             # mis_guid = self.get_mission_guid(mission_name)
             response = self.http.get("/mission_queue")
-            
+
         except http.client.ResponseNotReady or http.client.CannotSendRequest:
-            self.logger.info("Http error: Mission with queue_id {} is still in queue".format(mission_queue_id))
+            self.logger.info(
+                "Http error: Mission with queue_id {} is still in queue".format(mission_queue_id))
             self.http.__del__()
             return False
 
         # self.logger.info("Mission with queue_id {} is in queue".format(mission_queue_id))
         # self.logger.info("Response status {}".format(response.status))
         data = json.loads(response.read())
-        
+
         for d in data:
-            if d["id"]==mission_queue_id:
+            if d["id"] == mission_queue_id:
                 if d["state"] == 'Done':
                     self.logger.info("Mission {} is done".format(mission_queue_id))
                     return True
-        
+
         self.logger.info("Mission with queue_id {} is still in queue".format(mission_queue_id))
         return False
-    
+
     def get_system_info(self):
         response = self.http.get("/system/info")
         return json.loads(response.read())
-    
