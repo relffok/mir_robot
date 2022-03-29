@@ -153,16 +153,17 @@ class MirRestAPI():
                 # that's why there is no response accompanying the PUT request,
                 # therefore a time out occurs, however time has been set correctly
                 response += "Set datetime to " + dT
-                self.logger.warn("REST API: Setting time Mir triggers emergency stop, please unlock.")
+                self.logger.warn("REST API: Setting time Mir triggers emergency stop, \
+                                  please unlock.")
                 self.logger.info(response)
-                
+
                 # this is needed, because a timeset restarts the restAPI
                 self.wait_for_available()
-                
+
                 return response
         response += " Error setting datetime"
         return response
-    
+
     def get_distance_statistics(self):
         response = self.http.get("/statistics/distance")
         return json.loads(response.read())
@@ -173,7 +174,7 @@ class MirRestAPI():
 
     def get_pose_guid(self, pos_name):
         positions = self.get_positions()
-        return next((pos["guid"] for pos in positions if pos["name"]==pos_name), None)
+        return next((pos["guid"] for pos in positions if pos["name"] == pos_name), None)
 
     def get_missions(self):
         response = self.http.get("/missions")
@@ -181,7 +182,7 @@ class MirRestAPI():
 
     def get_mission_guid(self, mission_name):
         missions = self.get_missions()
-        return next((mis["guid"] for mis in missions if mis["name"]==mission_name), None)
+        return next((mis["guid"] for mis in missions if mis["name"] == mission_name), None)
 
     def get_sounds(self):
         response = self.http.get("/sounds")

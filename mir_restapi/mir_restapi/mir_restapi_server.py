@@ -23,16 +23,17 @@ class MirRestAPIServer(Node):
         self.add_on_set_parameters_callback(self.parameters_callback)
 
         self.api_handle = None
-        
+
         self.setup_api_handle()
-        
-        if self.api_handle == None:
+
+        if self.api_handle is None:
             self.get_logger().warn("""
-            Hostname and API token are not set! Run as follows: 
-            
-            ros2 run mir_restapi mir_restapi_server --ros-args -p mir_hostname:='MIR_IP_ADDR' -p mir_restapi_auth:='YOUR_API_KEY'
+            Hostname and API token are not set! Run as follows:
+
+            ros2 run mir_restapi mir_restapi_server
+            --ros-args -p mir_hostname:='MIR_IP_ADDR' -p mir_restapi_auth:='YOUR_API_KEY'
             """)
-    
+
     def setup_api_handle(self):
         if self.hostname != "" and self.auth != "":
             self.api_handle = mir_restapi.mir_restapi_lib.MirRestAPI(
@@ -40,7 +41,7 @@ class MirRestAPIServer(Node):
             self.get_logger().info("created MirRestAPI handle")
             self.create_services()
             self.get_logger().info("created services")
-    
+            
     def parameters_callback(self, params):
         for param in params:
             if param.name == "mir_restapi_auth":
@@ -128,7 +129,7 @@ class MirRestAPIServer(Node):
             response = self.reponse_api_handle_not_exists(response)
             return response
         if self.api_handle.is_connected(print=False):
-            if args==None:
+            if args is None:
                 response.message = str(service_fct())
             else:
                 response.message = str(service_fct(args))
@@ -190,8 +191,9 @@ class MirRestAPIServer(Node):
             self.get_logger().error(response.message)
             response.success = False
             return response
-        self.get_logger().info("Put honk mission into queue with mission_queue_id={}".format(mission_queue_id))
-        
+        self.get_logger().info("Put honk mission into queue with mission_queue_id={}".format(
+            mission_queue_id))
+
         emerg_response = self.is_emergency_halt_callback(request, response)
         if emerg_response.message == str(True):
             response.message = "Can't honk, emergency halt"
@@ -202,12 +204,12 @@ class MirRestAPIServer(Node):
             self.get_logger().info(response.message)
             STATE_ID_RUN_MISSION = 3
             STATE_ID_PAUSE = 4
-            
+
             self.api_handle.set_state_id(STATE_ID_RUN_MISSION)
-            
+
             while not self.api_handle.is_mission_done(mission_queue_id):
                 time.sleep(1)
-            
+
             self.api_handle.set_state_id(STATE_ID_PAUSE)
             self.api_handle.http.__del__()
             response.success = True
