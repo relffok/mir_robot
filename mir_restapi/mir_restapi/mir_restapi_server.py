@@ -105,7 +105,7 @@ class MirRestAPIServer(Node):
         if self.api_handle == None:
             return -1
         
-        self.get_logger().info('REST API: Waiting for connection')
+        self.get_logger().debug('REST API: Waiting for connection')
         i = 1
         while not self.api_handle.is_connected():
             if not rclpy.ok():
@@ -159,19 +159,19 @@ class MirRestAPIServer(Node):
         return response
     
     def is_emergency_halt_callback(self, request, response):
-        self.get_logger().info('Checking REST API for emergency halt...')
+        self.get_logger().debug('Checking REST API for emergency halt...')
         response = self.call_restapi_function(self.api_handle.get_state_id, request, response)
         
         if response.success:
             state_id = int(response.message)
-            #self.get_logger().info("Returned state_id as %i" % state_id)
+            self.get_logger().debug("Returned state_id as %i" % state_id)
             STATE_ID_EMERGENCY = 10
             if state_id == STATE_ID_EMERGENCY:
                 response.message = str(True)
-                self.get_logger().info("Emergency Halt")
+                self.get_logger().debug("Emergency Halt")
             else:
                 response.message = str(False)
-                # self.get_logger().info("no emergency halt")
+                self.get_logger().debug("no emergency halt")
         return response
     
     def get_missions_callback(self, request, response):
