@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import rclpy
 from rclpy.node import Node
-from rclpy.qos import qos_profile_system_default, qos_profile_sensor_data
+from rclpy.qos import qos_profile_system_default, qos_profile_sensor_data, qos_profile_services_default
 from rclpy.time import Time
 from rclpy.clock import ClockType
 
@@ -17,6 +17,7 @@ from nav_msgs.msg import Odometry
 from sensor_msgs.msg import LaserScan
 from tf2_msgs.msg import TFMessage
 from std_srvs.srv import Trigger
+from std_msgs.msg import Bool
 
 tf_prefix = ''
 
@@ -419,7 +420,40 @@ class MiR100BridgeNode(Node):
                 self.get_logger().warn(
                     "Topic '%s' is not yet subscribed to by the MiR!" % sub_topic.topic)
         
+        
+        emergency_pub = self.create_publisher(Bool, 'emergency_halt', qos_profile_services_default)
+        cli_mir_restapi_emergency = self.create_client(Trigger, 'mir_100_is_emergency_halt')
+        cli_mir_restapi_emergency.wait_for_service()
         self.mir_bridge_ready = True
+        
+        last_check = time.time()
+        emergency = False
+        while True:
+            rclpy.spin_once(self)
+            if time.time() - last_check < 1:
+                continue
+            last_check = time.time()
+
+            req = Trigger.Request()
+            future = cli_mir_restapi_emergency.call_async(req)
+            rclpy.spin_until_future_complete(self, future, timeout_sec=1)
+            if future.done():
+                if future.result().message == str(True):
+                    if not emergency:
+                        msg = Bool()
+                        msg.data = True
+                        emergency_pub.publish(msg)
+                        self.get_logger().info('Emergency Halt triggered')
+                    emergency = True
+                else:
+                    if emergency:
+                        msg = Bool()
+                        msg.data = True
+                        emergency_pub.publish(msg)
+                        self.get_logger().info('Emergency Halt released')
+                    emergency = False
+
+
         
 
     def get_topics(self):
