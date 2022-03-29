@@ -74,7 +74,7 @@ class MirRestAPI():
             self.http.connection.connect()
             self.http.connection.close()
             if print:
-                self.logger.info("REST API: Connected!")
+                self.logger.debug("REST API: Connected!")
         except Exception as e:
             if print:
                 self.logger.warn('REST API: Attempt to connect failed: ' + str(e))
