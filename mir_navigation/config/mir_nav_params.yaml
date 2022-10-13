@@ -123,26 +123,26 @@ controller_server:
       movement_time_allowance: 10.0
     goal_checker:
       plugin: "nav2_controller::SimpleGoalChecker"
-      xy_goal_tolerance: 0.25
-      yaw_goal_tolerance: 0.15
+      xy_goal_tolerance: 0.1
+      yaw_goal_tolerance: 0.1
       stateful: True
     FollowPath:
       plugin: "dwb_core::DWBLocalPlanner"
       debug_trajectory_details: True
-      min_vel_x: 0.0
+      min_vel_x: -1.5
       min_vel_y: 0.0
-      max_vel_x: 2.5
+      max_vel_x: 1.5
       max_vel_y: 0.0
       max_vel_theta: 1.0
       min_speed_xy: 0.0
-      max_speed_xy: 2.5
+      max_speed_xy: 1.5
       min_speed_theta: 0.0
-      acc_lim_x: 2.5
+      acc_lim_x: 2.0
       acc_lim_y: 0.0
-      acc_lim_theta: 3.2
-      decel_lim_x: -2.5
+      acc_lim_theta: 2.0
+      decel_lim_x: -2.0
       decel_lim_y: 0.0
-      decel_lim_theta: -3.2
+      decel_lim_theta: -2.0
       vx_samples: 20
       vy_samples: 5
       vtheta_samples: 20
@@ -150,22 +150,22 @@ controller_server:
       linear_granularity: 0.05
       angular_granularity: 0.025
       transform_tolerance: 0.2
-      xy_goal_tolerance: 0.25
+      xy_goal_tolerance: 0.1
       trans_stopped_velocity: 0.25
       short_circuit_trajectory_evaluation: True
       stateful: True
-      critics: ["RotateToGoal", "Oscillation", "BaseObstacle", "GoalAlign", "PathAlign", "PathDist", "GoalDist", "ObstacleFootprint"]
+      critics: ["Oscillation", "BaseObstacle", "GoalAlign", "PathAlign", "PathDist", "GoalDist", "ObstacleFootprint"]
       BaseObstacle.scale: 0.02
       GoalAlign.forward_point_distance: 0.1
-      GoalAlign.scale: 24.0
-      PathAlign.scale: 32.0
-      PathAlign.forward_point_distance: 0.325
-      PathDist.scale: 32.0
-      GoalDist.scale: 24.0
-      RotateToGoal.scale: 24.0
-      RotateToGoal.xy_goal_tolerance: 0.25
-      RotateToGoal.slowing_factor: 2.0
-      RotateToGoal.lookahead_time: -1.0
+      GoalAlign.scale: 10.0
+      PathAlign.scale: 30.0
+      PathAlign.forward_point_distance: 0.1
+      PathDist.scale: 30.0
+      GoalDist.scale: 10.0
+      # RotateToGoal.scale: 10.0
+      # RotateToGoal.xy_goal_tolerance: 0.1
+      # RotateToGoal.slowing_factor: 2.0
+      # RotateToGoal.lookahead_time: -1.0
 
 controller_server_rclcpp_node:
   ros__parameters:
