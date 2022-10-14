@@ -34,7 +34,7 @@
           </Sequence>
           <Spin spin_dist="0.79"/>
           <Wait wait_duration="3"/>
-          <BackUp backup_dist="1" backup_speed="0.5"/>
+          <BackUp backup_dist="0.5" backup_speed="0.1"/>
         </RoundRobin>
       </ReactiveFallback>
     </RecoveryNode>
