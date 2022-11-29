@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+  <xacro:include filename="$(find mir_description)/urdf/include/common_properties.urdf.xacro" />
+
+  <xacro:macro name="actuated_wheel" params="prefix  locationprefix locationright">
+    <joint name="${prefix}${locationprefix}_wheel_joint" type="continuous">
+      <origin xyz="0.0 ${-mir_100_act_wheel_dy * locationright} ${mir_100_act_wheel_radius}" rpy="0 0 0" />
+      <parent link="${prefix}base_link" />
+      <child link="${prefix}${locationprefix}_wheel_link" />
+      <axis xyz="0 1 0" />
+      <limit effort="100" velocity="20.0" />
+    </joint>
+
+    <link name="${prefix}${locationprefix}_wheel_link">
+      <xacro:cylinder_inertial mass="${mir_100_act_wheel_mass}" radius="${mir_100_act_wheel_radius}" length="${mir_100_act_wheel_width}">
+        <origin xyz="0 0 0" rpy="${0.5 * pi} 0 0" />
+      </xacro:cylinder_inertial>
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://mir_description/meshes/visual/wheel.stl" />
+        </geometry>
+        <xacro:insert_block name="material_dark_grey" />
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="${pi/2} 0 0" />
+        <geometry>
+          <cylinder radius="${mir_100_act_wheel_radius}" length="${mir_100_act_wheel_width}" />
+        </geometry>
+      </collision>
+    </link>
+    <gazebo reference="${prefix}${locationprefix}_wheel_link">
+      <material>Gazebo/DarkGrey</material>
+    </gazebo>
+
+    <!-- set the gazebo friction parameters for the wheels -->
+    <gazebo reference="${prefix}${locationprefix}_wheel_link">
+      <kp value="10000000.0"/>
+      <kd value="1.0"/>
+      <mu1 value="200"/>
+      <mu2 value="200"/>
+      <maxVel>1.0</maxVel>
+      <minDepth>0.01</minDepth>
+    </gazebo>
+  </xacro:macro>
+</robot>
