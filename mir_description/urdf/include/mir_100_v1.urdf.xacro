@@ -11,8 +11,6 @@
 
   <xacro:property name="deg_to_rad" value="0.017453293" />
 
-  <xacro:property name="mir_100_base_mass" value="58.0" />
-
   <xacro:property name="mir_100_act_wheel_radius" value="0.0625" />
   <xacro:property name="mir_100_act_wheel_width" value="0.032" />
   <xacro:property name="mir_100_act_wheel_mass" value="1.0" />
@@ -29,6 +27,12 @@
   <xacro:property name="mir_100_back_caster_wheel_base_dx" value="-0.270154" />
   <xacro:property name="mir_100_caster_wheel_base_dy" value="0.203" />
   <xacro:property name="mir_100_caster_wheel_base_dz" value="${mir_100_caster_wheel_radius-mir_100_caster_wheel_dz}" />
+
+  <!-- MiR 100 complete mass 78.2kg (8.2kg battery) -->
+  <!-- - 2x2kg sick laser = 4kg-->
+  <!-- - 4x caster wheels + rotation link: 4x 1.31 kg -->
+  <!-- - 2x act wheels: 2kg -->
+  <xacro:property name="mir_100_base_mass" value="66.96" />
 
   <xacro:property name="imu_stdev" value="0.00017" />
 
