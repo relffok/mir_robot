@@ -97,13 +97,36 @@
     </gazebo>
 
     <!-- set the gazebo friction parameters for the wheels -->
+
     <gazebo reference="${prefix}${locationprefix}_caster_wheel_link">
-      <kp value="10000000.0"/>
-      <kd value="1.0"/>
-      <mu1 value="1"/>
-      <mu2 value="1"/>
-      <maxVel>1.0</maxVel>
-      <minDepth>0.01</minDepth>
+      <collision name="${prefix}${locationprefix}_caster_wheel_link_collision">
+        <surface>
+            <friction>
+              <ode>
+                <mu>1.0</mu>
+                <mu2>1.0</mu2>
+                <!--<fdir1>0 0 1</fdir1> -->
+                <!-- <slip1>0</slip1>
+                <slip2>0</slip2> -->
+              </ode>
+              <!-- <torsional>
+                <coefficient>200</coefficient>
+                <use_patch_radius>true</use_patch_radius>
+                <surface_radius>${mir_100_caster_wheel_radius}</surface_radius>
+              </torsional> -->
+            </friction>
+            <contact>
+              <ode>
+                <!-- <soft_cfm>0.0</soft_cfm>
+                <soft_erp>0.2</soft_erp> -->
+                <kp>10000000.0</kp>
+                <kd>1.0</kd>
+                <max_vel>1.0</max_vel>
+                <min_depth>0.001</min_depth> <!-- also influences if the base can change direction without caster does not block-->
+              </ode>
+            </contact>
+          </surface>
+      </collision>
     </gazebo>
   </xacro:macro>
 </robot>
