@@ -41,7 +41,7 @@ class MirRestAPIClient(Node):
 
     def sync_time(self):
         self.call_trigger_service(self.restAPI_setTime)
-
+        
     def get_status(self):
         self.call_trigger_service(self.restAPI_getStatus)
 

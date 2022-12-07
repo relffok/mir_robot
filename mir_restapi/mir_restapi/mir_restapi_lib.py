@@ -3,7 +3,6 @@ import time
 import http.client
 from datetime import datetime
 
-
 class HttpConnection():
 
     def __init__(self, logger, address, auth, api_prefix):
@@ -79,7 +78,7 @@ class MirRestAPI():
             self.http.connection.connect()
             self.http.connection.close()
             if print:
-                self.logger.info("REST API: Connected!")
+                self.logger.debug("REST API: Connected!")
         except Exception as e:
             if print:
                 self.logger.warn('REST API: Attempt to connect failed: ' + str(e))
@@ -92,7 +91,7 @@ class MirRestAPI():
             return False
         else:
             return True
-
+            
     def wait_for_available(self):
         while True:
             if self.is_connected(print=False):
@@ -111,6 +110,7 @@ class MirRestAPI():
         status = self.get_status()
         state_id = status["state_id"]
         return state_id
+        
     """ Choices are: {3, 4, 11}, State: {Ready, Pause, Manualcontrol}
     """
     def set_state_id(self, stateId):
@@ -241,7 +241,7 @@ class MirRestAPI():
             self.logger.warn("Couldn't schedule mission")
             self.logger.warn(str(data))
         return False, -1
-
+        
     def is_mission_done(self, mission_queue_id):
         try:
             # mis_guid = self.get_mission_guid(mission_name)
