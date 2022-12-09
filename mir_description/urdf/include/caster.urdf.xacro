@@ -11,9 +11,6 @@
       <axis xyz="0 0 1" />
       <dynamics damping="0.5" friction="0.05"/>
     </joint>
-    <gazebo reference="${prefix}${locationprefix}_caster_rotation_joint">
-      <implicitSpringDamper>0</implicitSpringDamper>
-    </gazebo>
 
     <gazebo>
       <plugin name="${locationprefix}_caster_rotation_joint_states" filename="libgazebo_ros_joint_state_publisher.so">
@@ -62,6 +59,7 @@
       <parent link="${prefix}${locationprefix}_caster_rotation_link" />
       <child link="${prefix}${locationprefix}_caster_wheel_link" />
       <axis xyz="0 1 0" />
+      <!-- <dynamics damping="0.015" friction="0.0"/> -->
     </joint>
 
     <gazebo>
@@ -105,24 +103,24 @@
               <ode>
                 <mu>1.0</mu>
                 <mu2>1.0</mu2>
-                <!--<fdir1>0 0 1</fdir1> -->
-                <!-- <slip1>0</slip1>
-                <slip2>0</slip2> -->
+                <!-- <fdir1>1 0 0</fdir1>
+                <slip1>0.0</slip1>
+                <slip2>0.0</slip2> -->
               </ode>
-              <!-- <torsional>
-                <coefficient>200</coefficient>
-                <use_patch_radius>true</use_patch_radius>
+              <torsional>
+                <coefficient>1.0</coefficient>
+                <use_patch_radius>false</use_patch_radius>
                 <surface_radius>${mir_100_caster_wheel_radius}</surface_radius>
-              </torsional> -->
+              </torsional>
             </friction>
             <contact>
               <ode>
                 <!-- <soft_cfm>0.0</soft_cfm>
                 <soft_erp>0.2</soft_erp> -->
-                <kp>10000000.0</kp>
-                <kd>1.0</kd>
+                <kp>100000000.0</kp>
+                <!--<kd>1.0</kd> -->
                 <max_vel>1.0</max_vel>
-                <min_depth>0.001</min_depth> <!-- also influences if the base can change direction without caster does not block-->
+                <min_depth>0.001</min_depth>
               </ode>
             </contact>
           </surface>
