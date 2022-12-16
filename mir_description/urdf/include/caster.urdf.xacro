@@ -9,7 +9,7 @@
       <parent link="${prefix}base_link" />
       <child link="${prefix}${locationprefix}_caster_rotation_link" />
       <axis xyz="0 0 1" />
-      <dynamics damping="0.5" friction="0.05"/>
+      <dynamics damping="0.0" friction="0.5"/>
     </joint>
 
     <gazebo>
@@ -59,7 +59,6 @@
       <parent link="${prefix}${locationprefix}_caster_rotation_link" />
       <child link="${prefix}${locationprefix}_caster_wheel_link" />
       <axis xyz="0 1 0" />
-      <!-- <dynamics damping="0.015" friction="0.0"/> -->
     </joint>
 
     <gazebo>
@@ -103,15 +102,15 @@
               <ode>
                 <mu>1.0</mu>
                 <mu2>1.0</mu2>
-                <!-- <fdir1>1 0 0</fdir1>
+                <fdir1>0 0 1</fdir1>
                 <slip1>0.0</slip1>
-                <slip2>0.0</slip2> -->
+                <slip2>0.5</slip2>
               </ode>
-              <torsional>
+              <!-- <torsional>
                 <coefficient>1.0</coefficient>
                 <use_patch_radius>false</use_patch_radius>
                 <surface_radius>${mir_100_caster_wheel_radius}</surface_radius>
-              </torsional>
+              </torsional> -->
             </friction>
             <contact>
               <ode>
@@ -119,8 +118,8 @@
                 <soft_erp>0.2</soft_erp> -->
                 <kp>100000000.0</kp>
                 <!--<kd>1.0</kd> -->
-                <max_vel>1.0</max_vel>
-                <min_depth>0.001</min_depth>
+                <!-- <max_vel>1.0</max_vel> -->
+                <min_depth>0.0</min_depth>
               </ode>
             </contact>
           </surface>
