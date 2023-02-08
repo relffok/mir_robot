@@ -203,7 +203,7 @@ class MirRestAPIServer(Node):
 
         queue_success, mission_queue_id = self.api_handle.add_mission_to_queue(mission_name)
         if not queue_success:
-            response.message = "Execution Mission {} failed due to mission queue error".format(mission_name)
+            response.message = "Execution Mission '{}' failed due to mission queue error".format(mission_name)
             self.get_logger().error(response.message)
             response.success = False
             return response
@@ -216,7 +216,7 @@ class MirRestAPIServer(Node):
             self.get_logger().error(response.message)
             response.success = False
         else:
-            response.message = "Executing mission %s".format(mission_name)
+            response.message = "Executing mission '{}'".format(mission_name)
             self.get_logger().info(response.message)
             STATE_ID_RUN_MISSION = 3
             STATE_ID_PAUSE = 4
