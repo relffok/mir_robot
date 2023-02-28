@@ -121,30 +121,19 @@ close and reopen all terminals:
 echo "source ~/ros2_ws/install/setup.bash" >> ~/.bashrc
 ```
 
-Gazebo demo (existing map)
+Gazebo demo (Navigation with existing map)
 --------------------------
-
-### Option 1: Launching the modules separately
 
 ```bash
 ### gazebo
-ros2 launch mir_gazebo mir_gazebo_launch.py world:=maze
+ros2 launch mir_gazebo mir_gazebo_launch.py world:=maze rviz_config_file:=$(ros2 pkg prefix mir_navigation)/share/mir_navigation/rviz/mir_nav.rviz
+
 
 ### localization (existing map)
 ros2 launch mir_navigation amcl.py use_sim_time:=true map:=$(ros2 pkg prefix mir_navigation)/share/mir_navigation/maps/maze.yaml
 
 ### navigation
 ros2 launch mir_navigation navigation.py use_sim_time:=true
-```
-
-### Option 2: Use combined launch file 
-
-```bash
-### combined launch file
-ros2 launch mir_navigation mir_nav_sim_launch.py world:=maze
-
-### (opt) Show possible launch arguments:
-ros2 launch mir_gazebo mir_gazebo_launch.py --show-args
 ```
 
 <!-- ```bash
@@ -165,7 +154,7 @@ rviz -d $(rospack find mir_navigation)/rviz/navigation.rviz
 (Click image to see video) -->
 
 
-* **HEADLESS MODE:** To run the simulation without the gazebo graphical interface (performance improvement) add:
+* **HEADLESS MODE:** To run the simulation without the gazebo graphical interface (performance improvement) add to the gazebo launch command:
 
         gui:=false
 
@@ -175,8 +164,6 @@ Now, you can use the "2D Goal Pose" tool in RViz to set a navigation goal for mo
 
 Gazebo demo (mapping)
 ---------------------
-
-### Option 1: Launching the modules separately
 
 ```bash
 ### gazebo:
@@ -188,20 +175,6 @@ ros2 launch mir_navigation mapping.py use_sim_time:=true slam_params_file:=$(ros
 ### navigation (optional)
 ros2 launch mir_navigation navigation.py use_sim_time:=true
 ```
-
-### Option 2: Use combined launch file 
-
-Instead of launching the 3 modules seperately, you can also use a combined launch file: 
-
-```bash
-### combined launch file:
-ros2 launch mir_navigation mir_mapping_sim_launch.py
-```
-
-* **NAVIGATION**: Navigation is disabled per default. If you like to teleop the robot using nav2 add: 
-
-         navigation_enabled:=true
-
 
 <!-- 
 
