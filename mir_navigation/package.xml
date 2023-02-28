@@ -13,9 +13,10 @@
   <url type="repository">https://github.com/dfki-ric/mir_robot</url>
   <url type="bugtracker">https://github.com/dfki-ric/mir_robot/issues</url>
 
-  <depend>mir_gazebo</depend>
+  <depend>mir_driver</depend>
   <depend>rviz2</depend>
-  <depend>nav2_bringup</depend>
+  <depend>navigation2</depend>
+  <depend>slam_toolbox</depend>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 

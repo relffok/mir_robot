@@ -17,9 +17,8 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
-find_package(mir_gazebo)
-find_package(nav2_bringup)
-find_package(rviz2)
+find_package(navigation2)
+find_package(slam_toolbox)
 
 
 install(DIRECTORY
