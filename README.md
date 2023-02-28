@@ -1,8 +1,8 @@
 # Disclaimer
 
-**This package is intended to be a migration package of [mir_robot using ros1](https://github.com/dfki-ric/mir_robot) to [ros galactic](https://docs.ros.org/en/galactic/Installation.html). 
+**This package is intended to be a migration package of [mir_robot using ros1](https://github.com/dfki-ric/mir_robot) to [ros humble](https://docs.ros.org/en/humble/Installation.html). 
 It is currently still under heavy development - to be used with caution!**
-The following packages have been migrated to galactic:
+The following packages have been migrated to humble:
 
 - [x] mir_description
 - [x] mir_driver
@@ -63,7 +63,7 @@ instructions. -->
 ### Preliminaries
 
 #### ROS2 
-If you haven't already [installed ROS2](https://docs.ros.org/en/galactic/Installation/Ubuntu-Install-Debians.html) on your PC, you need to add the ROS2 apt
+If you haven't already [installed ROS2](https://docs.ros.org/en/humble/Installation/Ubuntu-Install-Debians.html) on your PC, you need to add the ROS2 apt
 repository. This step is necessary for either binary or source install.
 
 <!-- Package not released yet!
@@ -92,7 +92,7 @@ mkdir -p ~/ros2_ws/src
 cd ~/ros2_ws/
 
 # clone mir_robot into the ros2 workspace
-git clone -b galactic-devel https://github.com/relffok/mir_robot src/mir_robot
+git clone -b humble-devel https://github.com/relffok/mir_robot src/mir_robot
 
 # use vcs to fetch linked repos
 vcs import < src/mir_robot/ros2.repos src --recursive
@@ -100,11 +100,11 @@ vcs import < src/mir_robot/ros2.repos src --recursive
 # use rosdep to install all dependencies (including ROS itself)
 sudo apt update
 sudo apt install -y python3-rosdep
-rosdep update
-rosdep install --from-paths src --ignore-src -r -y --rosdistro galactic
+rosdep update --rosdistro=humble
+rosdep install --from-paths src --ignore-src -r -y --rosdistro humble
 
 # build all packages in the workspace
-source /opt/ros/galactic/setup.bash
+source /opt/ros/humble/setup.bash
 cd ~/ros2_ws
 colcon build
 ```
