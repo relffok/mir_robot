@@ -104,7 +104,7 @@ class RosbridgeSetup():
         try:
             # Load the string into a JSON object
             obj = json.loads(message)
-            # print "Received: ", obj
+            # print ("Received: ", obj)
 
             if 'op' in obj:
                 option = obj['op']
@@ -158,7 +158,7 @@ class RosbridgeWSConnection():
         self.errored = False
         self.callbacks = []
 
-    def on_open(self):
+    def on_open(self, ws):
         print("### ROS bridge connected ###")
         self.connected = True
 
@@ -169,18 +169,18 @@ class RosbridgeWSConnection():
         else:
             self.ws.send(message)
 
-    def on_error(self, error):
+    def on_error(self, ws, error):
         self.errored = True
         print("Error: %s" % error)
 
-    def on_close(self):
+    def on_close(self, ws):
         self.connected = False
         print("### ROS bridge closed ###")
 
     def run(self, *args):
         self.ws.run_forever()
 
-    def on_message(self, message):
+    def on_message(self, ws, message):
         # Call the handlers
         for callback in self.callbacks:
             callback(message)
