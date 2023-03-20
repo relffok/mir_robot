@@ -39,6 +39,8 @@ def generate_launch_description():
     container_name_full = (namespace, '/', container_name)
     use_respawn = LaunchConfiguration('use_respawn')
     log_level = LaunchConfiguration('log_level')
+    default_nav_to_pose_bt_xml = LaunchConfiguration('default_nav_to_pose_bt_xml')
+    default_nav_through_pose_bt_xml = LaunchConfiguration('default_nav_through_pose_bt_xml')
 
     lifecycle_nodes = ['controller_server',
                        'smoother_server',
@@ -62,7 +64,10 @@ def generate_launch_description():
     # Create our own temporary YAML files that include substitutions
     param_substitutions = {
         'use_sim_time': use_sim_time,
-        'autostart': autostart}
+        'autostart': autostart,
+        'default_nav_to_pose_bt_xml': default_nav_to_pose_bt_xml,
+        'default_nav_through_poses_bt_xml': default_nav_through_pose_bt_xml
+    }
 
     configured_params = RewrittenYaml(
             source_file=params_file,
@@ -111,6 +116,12 @@ def generate_launch_description():
     declare_cmd_vel_cmd = DeclareLaunchArgument(
         'cmd_vel_topic', default_value='cmd_vel',
         description='Define cmd_vel topic')
+
+    declare_bt_nav_cmd = DeclareLaunchArgument(
+        'default_nav_to_pose_bt_xml', default_value='')
+
+    declare_bt_nav_through_cmd = DeclareLaunchArgument(
+        'default_nav_through_pose_bt_xml', default_value='')
 
     def add_prefix_to_cmd_vel(context):
         topic = context.launch_configurations['cmd_vel_topic']
@@ -279,6 +290,8 @@ def generate_launch_description():
     ld.add_action(declare_use_respawn_cmd)
     ld.add_action(declare_log_level_cmd)
     ld.add_action(declare_cmd_vel_cmd)
+    ld.add_action(declare_bt_nav_cmd)
+    ld.add_action(declare_bt_nav_through_cmd)
     ld.add_action(OpaqueFunction(function=add_prefix_to_cmd_vel))
     # Add the actions to launch all of the navigation nodes
     ld.add_action(load_nodes)
